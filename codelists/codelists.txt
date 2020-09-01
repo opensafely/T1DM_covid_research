@@ -1,0 +1,5 @@
+opensafely/ethnicity/2020-04-27
+opensafely/heart-failure/2020-05-05
+opensafely/smoking-clear/2020-04-29
+opensafely/smoking-unclear/2020-04-29
+opensafely/statin-medication/2020-04-20
