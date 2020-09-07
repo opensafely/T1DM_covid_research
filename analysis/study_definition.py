@@ -103,9 +103,7 @@ study = StudyDefinition(
 
         },
 
- 
-
-        insulin_lastyear_meds=patients.with_these_medications(
+         insulin_lastyear_meds=patients.with_these_medications(
             insulin_med_codes,
             between=["2019-02-01", "2020-01-31"],
             returning="number_of_matches_in_period",
