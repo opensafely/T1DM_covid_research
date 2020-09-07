@@ -46,4 +46,4 @@ Data cleaning
 do "$Dodir/01_t1dm_cr_analysis_dataset.do"
 
 *Feasibility counts
-do "$Dodir/02_t1dm_feasibility_counts.do"
+do "$Dodir/02_t1dm_an_feasibility_counts.do"
