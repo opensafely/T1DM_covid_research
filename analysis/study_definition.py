@@ -1,17 +1,35 @@
-from cohortextractor import StudyDefinition, patients, codelist, codelist_from_csv
+from cohortextractor import (
+    StudyDefinition,
+    patients,
+    codelist_from_csv,
+    codelist,
+    filter_codes_by_category,
+    combine_codelists
+)
+
+
+## CODE LISTS
+# All codelist are held within the codelist/ folder and this imports them from
+# codelists.py file which imports from that folder
+
+from codelists import *
+
+## STUDY POPULATION
+# Defines both the study population and points to the important covariates
 
 study = StudyDefinition(
-    # Configure the expectations framework
     default_expectations={
-        "date": {"earliest": "1900-01-01", "latest": "today"},
-        "rate": "exponential_increase",
+        "date": {"earliest": "1970-01-01", "latest": "today"},
+        "rate": "uniform",
+        "incidence": 0.2,
     },
-    # This line defines the study population
-    population=patients.registered_with_one_practice_between(
-        "2019-02-01", "2020-02-01"
-    ),
 
-        dereg_date=patients.date_deregistered_from_all_supported_practices(
+    # STUDY POPULATION
+   population=patients.registered_with_one_practice_between(
+        "2019-02-01", "2020-02-01"
+   ),
+
+    dereg_date=patients.date_deregistered_from_all_supported_practices(
         on_or_before="2020-12-01", 
         date_format="YYYY-MM",
         return_expectations={"date": {"earliest": "2020-02-01"}},
@@ -62,6 +80,26 @@ study = StudyDefinition(
     ),
 
     #DIABETES OUTCOME
+    type1_diabetes=patients.with_these_clinical_events(
+        diabetes_t1_codes,
+        on_or_before="2020-01-31",
+        return_first_date_in_period=True,
+        include_month=True,
+    ),
+    type2_diabetes=patients.with_these_clinical_events(
+        diabetes_t2_codes,
+        on_or_before="2020-01-31",
+        return_first_date_in_period=True,
+        include_month=True,
+    ),
+    unknown_diabetes=patients.with_these_clinical_events(
+        diabetes_unknown_codes,
+        on_or_before="2020-01-31",
+        return_first_date_in_period=True,
+        include_month=True,
+    ),
+
+ 
      diabetes_type=patients.categorised_as(
         {
             "T1DM":
@@ -103,12 +141,19 @@ study = StudyDefinition(
 
         },
 
-         insulin_lastyear_meds=patients.with_these_medications(
+ 
+        oad_lastyear_meds=patients.with_these_medications(
+            oad_med_codes, 
+            between=["2019-02-01", "2020-01-31"],
+            returning="number_of_matches_in_period",
+        ),
+        insulin_lastyear_meds=patients.with_these_medications(
             insulin_med_codes,
             between=["2019-02-01", "2020-01-31"],
             returning="number_of_matches_in_period",
         ),
     ),
+
 
     ## DEMOGRAPHIC COVARIATES
     # AGE
