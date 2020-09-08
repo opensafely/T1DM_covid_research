@@ -1,0 +1,23 @@
+
+Generating cohort for study_definition...
+Running. Please wait...
+Traceback (most recent call last):
+  File "/root/.pyenv/versions/3.7.8/bin/cohortextractor", line 11, in <module>
+    load_entry_point('opensafely-cohort-extractor', 'console_scripts', 'cohortextractor')()
+  File "/app/cohortextractor/cohortextractor.py", line 402, in main
+    options.study_definition,
+  File "/app/cohortextractor/cohortextractor.py", line 120, in generate_cohort
+    _generate_cohort(output_dir, study_name, suffix, expectations_population)
+  File "/app/cohortextractor/cohortextractor.py", line 132, in _generate_cohort
+    with_sqlcmd=with_sqlcmd,
+  File "/app/cohortextractor/study_definition.py", line 51, in to_csv
+    self.backend.to_csv(filename, **kwargs)
+  File "/app/cohortextractor/tpp_backend.py", line 45, in to_csv
+    for patient_id in self._to_csv(temp_filename, queries, with_sqlcmd=with_sqlcmd):
+  File "/app/cohortextractor/tpp_backend.py", line 66, in _to_csv
+    for line in lines:
+  File "/app/cohortextractor/mssql_utils.py", line 123, in _mssql_query_to_csv_file
+    raise ValueError(stderr)
+ValueError: Sqlcmd: Error: Internal error at ReadAndHandleColumnData (Reason: Error reading column data).
+TCP Provider: Error code 0x2746
+Communication link failure
