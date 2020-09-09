@@ -75,3 +75,4 @@ label var confirmed_percent "% of people with T1DM who had COVID after T1DM diag
 *save dataset for use as table
 outsheet using "$Tabfigdir/02_t1dm_an_feasibility_counts.txt", replace
 save "$Tempdir/02_t1dm_an_feasibility_count.dta", replace
+insheet using "$Tabfigdir/02_t1dm_an_feasibility_counts.txt", clear
