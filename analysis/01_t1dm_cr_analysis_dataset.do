@@ -229,6 +229,28 @@ label define agecat 1"Children" 2"Adults 18-45" 3"Adults 46-105"
 label values agecat agecat
 safetab agecat, m
 
+/*  IMD  */
+* Group into 5 groups
+rename imd imd_o
+egen imd = cut(imd_o), group(5) icodes
+
+* add one to create groups 1 - 5 
+replace imd = imd + 1
+
+* - 1 is missing, should be excluded from population 
+replace imd = .u if imd_o == -1
+drop imd_o
+
+* Reverse the order (so high is more deprived)
+recode imd 5 = 1 4 = 2 3 = 3 2 = 4 1 = 5 .u = .u
+
+label define imd 1 "1 least deprived" 2 "2" 3 "3" 4 "4" 5 "5 most deprived" .u "Unknown"
+label values imd imd 
+safetab imd, m
+
+
+
+
 
 
 sort patient_id
