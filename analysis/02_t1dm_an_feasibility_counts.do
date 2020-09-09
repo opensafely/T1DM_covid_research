@@ -57,7 +57,7 @@ save "$Tempdir/table0_eth.dta", replace
 restore
 
 *combine datasets to create a simple table of proportions and counts
-use "$Tempdir/table0_overall.dta"
+use "$Tempdir/table0_overall.dta", clear
 append using "$Tempdir/table0_sex.dta"
 append using "$Tempdir/table0_eth.dta"
 destring var, replace
