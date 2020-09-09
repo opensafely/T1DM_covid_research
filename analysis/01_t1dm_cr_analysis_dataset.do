@@ -13,9 +13,10 @@ DATASETS CREATED: 		none
 OTHER OUTPUT: 			logfiles, printed to folder analysis/$logdir
 
 
-import delimited `c(pwd)'/output/input.csv, clear
 							
 ==============================================================================*/
+
+import delimited `c(pwd)'/output/input.csv, clear
 
 * Open a log file
 cap log close
@@ -66,6 +67,7 @@ format indexdate %d
 
 	
 ren primary_care_case			confirmed_date
+ren type1_diabetes				t1dm_date
 
 /* CONVERT STRINGS TO DATE FOR COVID EXPOSURE VARIABLES =============================*/
 * Recode to dates from the strings 
@@ -100,20 +102,7 @@ rename dereg_date dereg_dstr
 	format dereg_date %td 
 
 *Prior T1DM: identify those with baseline t1dm (prior to covid) and incident t1dm (post covid)
-ren type1_diabetes t1dm
-foreach var of varlist 	t1dm {
-				replace `var' = `var' + "-15"
-				rename `var' `var'_dstr
-				replace `var'_dstr = " " if `var'_dstr == "-15"
-				gen `var'_date = date(`var'_dstr, "YMD") 
-				order `var'_date, after(`var'_dstr)
-				drop `var'_dstr	
-				format `var'_date %td
-}
-	
-
-gen t1dm=0
-replace t1dm=1 if t1dm_date!=.
+tab t1dm 
 
 gen baseline_t1dm=0
 replace baseline_t1dm=1 if t1dm_date<confirmed_date
@@ -130,7 +119,7 @@ safetab incident_t1dm
 
 * Censoring dates for each outcome (last date outcome data available)
 *https://github.com/opensafely/rapid-reports/blob/master/notebooks/latest-dates.ipynb
-gen confirmed_censor_date = d("17/08/2020")
+gen t1dm_censor_date = d("17/08/2020")
 format *censor_date %d
 sum *censor_date, format
 *******************************************************************************

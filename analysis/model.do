@@ -36,7 +36,7 @@ global tempdir    "$Tempdir"
 
 *will add death to the global when we do survival analysis for censoring purposes
 
-global outcomes "confirmed"
+global outcomes "confirmed t1dm"
 
 /**********************
 Data cleaning

@@ -22,8 +22,12 @@ cap log close
 log using "$Logdir/02_t1dm_an_feasibility_counts.log", replace t
 
 use "$Tempdir/analysis_dataset.dta", clear
+safecount
+drop if baseline_t1dm==1
+safecount
 
-local var "baseline_t1dm incident_t1dm"
+
+local var "incident_t1dm"
 foreach i of local var {
 	safetab `i'
 	safetab `i' confirmed, col
