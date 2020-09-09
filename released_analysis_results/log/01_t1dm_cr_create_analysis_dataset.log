@@ -1,0 +1,431 @@
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  E:\caroline\T1DM_covid_research/output/log/01_t1dm_cr_create_analysis_dataset.log
+  log type:  text
+ opened on:   8 Sep 2020, 16:15:19
+
+. 
+. 
+. di "STARTING safecount FROM IMPORT:"
+STARTING safecount FROM IMPORT:
+
+. safecount
+  21,750,276
+
+. 
+. ****************************
+. *  Create required cohort  *
+. ****************************
+. 
+. * Age: Exclude those with implausible ages
+. cap assert age<.
+
+. noi di "DROPPING AGE<105:" 
+DROPPING AGE<105:
+
+. drop if age>105
+(131 observations deleted)
+
+. safecount
+  21,750,145
+
+. 
+. * Sex: Exclude categories other than M and F
+. cap assert inlist(sex, "M", "F", "I", "U")
+
+. noi di "DROPPING GENDER NOT M/F:" 
+DROPPING GENDER NOT M/F:
+
+. drop if inlist(sex, "I", "U")
+(341 observations deleted)
+
+. 
+. gen male = 1 if sex == "M"
+(10,836,997 missing values generated)
+
+. replace male = 0 if sex == "F"
+(10,836,997 real changes made)
+
+. label define male 0"Female" 1"Male"
+
+. label values male male
+
+. safetab male
+
+       male |      Freq.     Percent        Cum.
+------------+-----------------------------------
+     Female | 10,836,997       49.83       49.83
+       Male | 10,912,807       50.17      100.00
+------------+-----------------------------------
+      Total | 21,749,804      100.00
+
+. safecount
+  21,749,804
+
+. 
+. 
+. *Start dates
+. gen index                       = "01/02/2020"
+
+. 
+. * Date of cohort entry, 1 Feb 2020
+. gen indexdate = date(index, "DMY")
+
+. format indexdate %d
+
+. 
+. 
+. *******************************************************************************
+. 
+. 
+. 
+. /* CREATE VARIABLES===========================================================*/
+. 
+. /* COVID EXPOSURE AND OUTCOME DEFINITIONS==================================================*/
+. 
+.         
+. ren primary_care_case                   confirmed_date
+
+. 
+. /* CONVERT STRINGS TO DATE FOR COVID EXPOSURE VARIABLES =============================*/
+. * Recode to dates from the strings 
+. 
+. foreach var of global outcomes {
+  2.         confirm string variable `var'_date
+  3.         rename `var'_date `var'_dstr
+  4.         gen `var'_date = date(`var'_dstr, "YMD")
+  5.         drop `var'_dstr
+  6.         format `var'_date %td 
+  7. 
+. }
+(21,672,228 missing values generated)
+
+. 
+. * Binary indicators for covid
+. foreach i of global outcomes {
+  2.                 gen `i'=0
+  3.                 replace  `i'=1 if `i'_date < .
+  4.                 safetab `i'
+  5. }
+(77,576 real changes made)
+
+  confirmed |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 | 21,672,228       99.64       99.64
+          1 |     77,576        0.36      100.00
+------------+-----------------------------------
+      Total | 21,749,804      100.00
+
+. 
+. 
+. *If covid occurs on the first day of follow-up add one day
+. foreach i of global outcomes {
+  2.         di "`i'"
+  3.         count if `i'_date==indexdate
+  4.         replace `i'_date=`i'_date+1 if `i'_date==indexdate
+  5. }
+confirmed
+  7
+(7 real changes made)
+
+. *date of deregistration
+. rename dereg_date dereg_dstr
+
+.         gen dereg_date = date(dereg_dstr, "YMD")
+(21,749,804 missing values generated)
+
+.         drop dereg_dstr
+
+.         format dereg_date %td 
+
+. 
+. *Prior T1DM: identify those with baseline t1dm (prior to covid) and incident t1dm (post covid)
+. ren type1_diabetes t1dm
+
+. foreach var of varlist  t1dm {
+  2.                                 replace `var' = `var' + "-15"
+  3.                                 rename `var' `var'_dstr
+  4.                                 replace `var'_dstr = " " if `var'_dstr == "-15"
+  5.                                 gen `var'_date = date(`var'_dstr, "YMD") 
+  6.                                 order `var'_date, after(`var'_dstr)
+  7.                                 drop `var'_dstr 
+  8.                                 format `var'_date %td
+  9. }
+variable t1dm was str7 now str10
+(21,749,804 real changes made)
+(21,616,655 real changes made)
+(21,616,655 missing values generated)
+
+.         
+. 
+. gen t1dm=0
+
+. replace t1dm=1 if t1dm_date!=.
+(133,149 real changes made)
+
+. 
+. gen baseline_t1dm=0
+
+. replace baseline_t1dm=1 if t1dm_date<confirmed_date
+(133,149 real changes made)
+
+. 
+. gen incident_t1dm=0
+
+. replace incident_t1dm=1 if t1dm_date>=confirmed_date & t1dm_date!=.
+(0 real changes made)
+
+. 
+. safetab t1dm
+
+       t1dm |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 | 21,616,655       99.39       99.39
+          1 |    133,149        0.61      100.00
+------------+-----------------------------------
+      Total | 21,749,804      100.00
+
+. safetab baseline_t1dm
+
+baseline_t1 |
+         dm |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 | 21,616,655       99.39       99.39
+          1 |    133,149        0.61      100.00
+------------+-----------------------------------
+      Total | 21,749,804      100.00
+
+. safetab incident_t1dm
+
+incident_t1 |
+         dm |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 | 21,749,804      100.00      100.00
+------------+-----------------------------------
+      Total | 21,749,804      100.00
+
+. 
+. /* CENSORING */
+. /* SET FU DATES===============================================================*/ 
+. 
+. * Censoring dates for each outcome (last date outcome data available)
+. *https://github.com/opensafely/rapid-reports/blob/master/notebooks/latest-dates.ipynb
+. gen confirmed_censor_date = d("17/08/2020")
+
+. format *censor_date %d
+
+. sum *censor_date, format
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+confi~r_date | 21,749,804   17aug2020           0  17aug2020  17aug2020
+
+. *******************************************************************************
+. 
+. 
+. /* DEMOGRAPHICS */ 
+. 
+. * Ethnicity (5 category)
+. label define ethnicity  1 "White"                                       ///
+>                                                 2 "Mixed"                                       ///
+>                                                 3 "Asian or Asian British"      ///
+>                                                 4 "Black"                                       ///
+>                                                 5 "Other"                                       
+
+.                                                 
+. label values ethnicity ethnicity
+
+. safetab ethnicity, m
+
+             ethnicity |      Freq.     Percent        Cum.
+-----------------------+-----------------------------------
+                 White | 13,129,124       60.36       60.36
+                 Mixed |    267,450        1.23       61.59
+Asian or Asian British |  1,316,767        6.05       67.65
+                 Black |    439,919        2.02       69.67
+                 Other |    392,449        1.80       71.48
+                     . |  6,204,095       28.52      100.00
+-----------------------+-----------------------------------
+                 Total | 21,749,804      100.00
+
+. 
+.  *re-order ethnicity
+.  gen eth5=1 if ethnicity==1
+(8,620,680 missing values generated)
+
+.  replace eth5=2 if ethnicity==3
+(1,316,767 real changes made)
+
+.  replace eth5=3 if ethnicity==4
+(439,919 real changes made)
+
+.  replace eth5=4 if ethnicity==2
+(267,450 real changes made)
+
+.  replace eth5=5 if ethnicity==5
+(392,449 real changes made)
+
+.  replace eth5=6 if ethnicity==.
+(6,204,095 real changes made)
+
+. 
+.  label define eth5              1 "White"                                       ///
+>                                                 2 "South Asian"           ///                                           
+>                                                 3 "Black"                                       ///
+>                                                 4 "Mixed"                                       ///
+>                                                 5 "Other"                                       ///
+>                                                 6 "Unknown"
+
+.                                         
+. 
+. label values eth5 eth5
+
+. safetab eth5, m
+
+       eth5 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+      White | 13,129,124       60.36       60.36
+South Asian |  1,316,767        6.05       66.42
+      Black |    439,919        2.02       68.44
+      Mixed |    267,450        1.23       69.67
+      Other |    392,449        1.80       71.48
+    Unknown |  6,204,095       28.52      100.00
+------------+-----------------------------------
+      Total | 21,749,804      100.00
+
+. 
+. * Ethnicity (16 category)
+. replace ethnicity_16 = 17 if ethnicity_16==.
+(6,204,095 real changes made)
+
+. label define ethnicity_16                                                                       ///
+>                                                 1 "British or Mixed British"            ///
+>                                                 2 "Irish"                                                       ///
+>                                                 3 "Other White"                                         ///
+>                                                 4 "White + Black Caribbean"             ///
+>                                                 5 "White + Black African"                       ///
+>                                                 6 "White + Asian"                                       ///
+>                                                 7 "Other mixed"                                         ///
+>                                                 8 "Indian or British Indian"            ///
+>                                                 9 "Pakistani or British Pakistani"      ///
+>                                                 10 "Bangladeshi or British Bangladeshi" ///
+>                                                 11 "Other Asian"                                        ///
+>                                                 12 "Caribbean"                                          ///
+>                                                 13 "African"                                            ///
+>                                                 14 "Other Black"                                        ///
+>                                                 15 "Chinese"                                            ///
+>                                                 16 "Other"                                                      ///
+>                                                 17 "Unknown"
+
+.                                                 
+. label values ethnicity_16 ethnicity_16
+
+. safetab ethnicity_16,m
+
+                      ethnicity_16 |      Freq.     Percent        Cum.
+-----------------------------------+-----------------------------------
+          British or Mixed British | 11,436,903       52.58       52.58
+                             Irish |     85,233        0.39       52.98
+                       Other White |  1,606,988        7.39       60.36
+           White + Black Caribbean |     60,442        0.28       60.64
+             White + Black African |     49,974        0.23       60.87
+                     White + Asian |     56,598        0.26       61.13
+                       Other mixed |    100,436        0.46       61.59
+          Indian or British Indian |    526,735        2.42       64.02
+    Pakistani or British Pakistani |    415,395        1.91       65.93
+Bangladeshi or British Bangladeshi |     96,891        0.45       66.37
+                       Other Asian |    277,746        1.28       67.65
+                         Caribbean |     94,783        0.44       68.08
+                           African |    251,575        1.16       69.24
+                       Other Black |     93,561        0.43       69.67
+                           Chinese |    117,463        0.54       70.21
+                             Other |    274,986        1.26       71.48
+                           Unknown |  6,204,095       28.52      100.00
+-----------------------------------+-----------------------------------
+                             Total | 21,749,804      100.00
+
+. 
+. * STP 
+. rename stp stp_old
+
+. bysort stp_old: gen stp = 1 if _n==1
+(21,749,772 missing values generated)
+
+. replace stp = sum(stp)
+(21,749,803 real changes made)
+
+. drop stp_old
+
+. 
+. /*  Age variables  */ 
+. 
+. * Create categorised age 
+. recode age      0/17.9999=0 ///
+>                         18/29.9999 = 1 /// 
+>                     30/39.9999 = 2 /// 
+>                         40/49.9999 = 3 ///
+>                         50/59.9999 = 4 ///
+>                         60/69.9999 = 5 ///
+>                         70/79.9999 = 6 ///
+>                         80/max = 7, gen(agegroup) 
+(21749803 differences between age and agegroup)
+
+. 
+. label define agegroup   0 "0-<18" ///
+>                                                 1 "18-<30" ///
+>                                                 2 "30-<40" ///
+>                                                 3 "40-<50" ///
+>                                                 4 "50-<60" ///
+>                                                 5 "60-<70" ///
+>                                                 6 "70-<80" ///
+>                                                 7 "80+"
+
+.                                                 
+. label values agegroup agegroup
+
+. 
+. gen agecat=.
+(21,749,804 missing values generated)
+
+. replace agecat=1 if age<18
+(4,239,802 real changes made)
+
+. replace agecat=2 if age>=18 & age<=45
+(7,693,064 real changes made)
+
+. replace agecat=3 if age>=46 & age<=105
+(9,816,938 real changes made)
+
+. 
+. label define agecat 1"Children" 2"Adults 18-45" 3"Adults 46-105"
+
+. label values agecat agecat
+
+. safetab agecat, m
+
+       agecat |      Freq.     Percent        Cum.
+--------------+-----------------------------------
+     Children |  4,239,802       19.49       19.49
+ Adults 18-45 |  7,693,064       35.37       54.86
+Adults 46-105 |  9,816,938       45.14      100.00
+--------------+-----------------------------------
+        Total | 21,749,804      100.00
+
+. 
+. 
+. 
+. sort patient_id
+
+. save "$Tempdir/analysis_dataset.dta", replace
+(note: file E:\caroline\T1DM_covid_research/output/tempdata/analysis_dataset.dta not found)
+file E:\caroline\T1DM_covid_research/output/tempdata/analysis_dataset.dta saved
+
+. 
+.         
+. * Close log file 
+. log close
+      name:  <unnamed>
+       log:  E:\caroline\T1DM_covid_research/output/log/01_t1dm_cr_create_analysis_dataset.log
+  log type:  text
+ closed on:   8 Sep 2020, 16:19:30
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
