@@ -82,21 +82,24 @@ study = StudyDefinition(
     #DIABETES OUTCOME
     type1_diabetes=patients.with_these_clinical_events(
         diabetes_t1_codes,
-        on_or_before="2020-01-31",
-        return_first_date_in_period=True,
-        include_month=True,
+        returning="date",
+        find_first_match_in_period=True,
+        date_format="YYYY-MM-DD",
+        return_expectations={"rate" : "exponential_increase"},
     ),
     type2_diabetes=patients.with_these_clinical_events(
         diabetes_t2_codes,
-        on_or_before="2020-01-31",
-        return_first_date_in_period=True,
-        include_month=True,
+        returning="date",
+        find_first_match_in_period=True,
+        date_format="YYYY-MM-DD",
+        return_expectations={"rate" : "exponential_increase"},
     ),
     unknown_diabetes=patients.with_these_clinical_events(
         diabetes_unknown_codes,
-        on_or_before="2020-01-31",
-        return_first_date_in_period=True,
-        include_month=True,
+        returning="date",
+        find_first_match_in_period=True,
+        date_format="YYYY-MM-DD",
+        return_expectations={"rate" : "exponential_increase"},
     ),
 
  
