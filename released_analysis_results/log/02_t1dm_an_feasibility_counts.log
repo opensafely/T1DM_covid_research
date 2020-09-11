@@ -1,0 +1,482 @@
+--------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  E:\alex\T1DM_covid_research/output/log/02_t1dm_an_feasibility_counts.log
+  log type:  text
+ opened on:  11 Sep 2020, 20:38:24
+
+. 
+. use "$Tempdir/analysis_dataset.dta", clear
+
+. safecount
+  21,749,804
+
+. drop if baseline_t1dm==1
+(136,619 observations deleted)
+
+. safecount
+  21,613,185
+
+. 
+. 
+. local var "incident_t1dm"
+
+. foreach i of local var {
+  2.         safetab `i'
+  3.         safetab `i' confirmed, col
+  4.         bysort agecat: safetab `i' confirmed, col
+  5.         bysort sex: safetab `i' confirmed, col
+  6.         bysort eth5: safetab `i' confirmed, col
+  7.         bysort imd: safetab `i' confirmed, col
+  8.         bysort region: safetab `i' confirmed, col
+  9. }
+
+incident_t1 |
+         dm |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 | 21,613,168      100.00      100.00
+          1 |         17        0.00      100.00
+------------+-----------------------------------
+      Total | 21,613,185      100.00
+
++-------------------+
+| Key               |
+|-------------------|
+|     frequency     |
+| column percentage |
++-------------------+
+
+incident_t |       confirmed
+       1dm |         0          1 |     Total
+-----------+----------------------+----------
+         0 |21,536,548     76,620 |21,613,168 
+           |    100.00      99.98 |    100.00 
+-----------+----------------------+----------
+         1 |         0         17 |        17 
+           |      0.00       0.02 |      0.00 
+-----------+----------------------+----------
+     Total |21,536,548     76,637 |21,613,185 
+           |    100.00     100.00 |    100.00 
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> agecat = Children
+
+**TABLE OF incident_t1dm confirmed REDACTED DUE TO SMALL N**
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> agecat = Adults 18-45
+
++-------------------+
+| Key               |
+|-------------------|
+|     frequency     |
+| column percentage |
++-------------------+
+
+incident_t |       confirmed
+       1dm |         0          1 |     Total
+-----------+----------------------+----------
+         0 | 7,624,219     25,483 | 7,649,702 
+           |    100.00      99.97 |    100.00 
+-----------+----------------------+----------
+         1 |         0          7 |         7 
+           |      0.00       0.03 |      0.00 
+-----------+----------------------+----------
+     Total | 7,624,219     25,490 | 7,649,709 
+           |    100.00     100.00 |    100.00 
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> agecat = Adults 46-105
+
++-------------------+
+| Key               |
+|-------------------|
+|     frequency     |
+| column percentage |
++-------------------+
+
+incident_t |       confirmed
+       1dm |         0          1 |     Total
+-----------+----------------------+----------
+         0 | 9,686,626     47,088 | 9,733,714 
+           |    100.00      99.98 |    100.00 
+-----------+----------------------+----------
+         1 |         0          9 |         9 
+           |      0.00       0.02 |      0.00 
+-----------+----------------------+----------
+     Total | 9,686,626     47,097 | 9,733,723 
+           |    100.00     100.00 |    100.00 
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> sex = F
+
++-------------------+
+| Key               |
+|-------------------|
+|     frequency     |
+| column percentage |
++-------------------+
+
+incident_t |       confirmed
+       1dm |         0          1 |     Total
+-----------+----------------------+----------
+         0 |10,735,263     42,490 |10,777,753 
+           |    100.00      99.98 |    100.00 
+-----------+----------------------+----------
+         1 |         0          9 |         9 
+           |      0.00       0.02 |      0.00 
+-----------+----------------------+----------
+     Total |10,735,263     42,499 |10,777,762 
+           |    100.00     100.00 |    100.00 
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> sex = M
+
++-------------------+
+| Key               |
+|-------------------|
+|     frequency     |
+| column percentage |
++-------------------+
+
+incident_t |       confirmed
+       1dm |         0          1 |     Total
+-----------+----------------------+----------
+         0 |10,801,285     34,130 |10,835,415 
+           |    100.00      99.98 |    100.00 
+-----------+----------------------+----------
+         1 |         0          8 |         8 
+           |      0.00       0.02 |      0.00 
+-----------+----------------------+----------
+     Total |10,801,285     34,138 |10,835,423 
+           |    100.00     100.00 |    100.00 
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> eth5 = White
+
++-------------------+
+| Key               |
+|-------------------|
+|     frequency     |
+| column percentage |
++-------------------+
+
+incident_t |       confirmed
+       1dm |         0          1 |     Total
+-----------+----------------------+----------
+         0 |12,997,330     42,831 |13,040,161 
+           |    100.00      99.97 |    100.00 
+-----------+----------------------+----------
+         1 |         0         11 |        11 
+           |      0.00       0.03 |      0.00 
+-----------+----------------------+----------
+     Total |12,997,330     42,842 |13,040,172 
+           |    100.00     100.00 |    100.00 
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> eth5 = South Asian
+
+**TABLE OF incident_t1dm confirmed REDACTED DUE TO SMALL N**
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> eth5 = Black
+
+**TABLE OF incident_t1dm confirmed REDACTED DUE TO SMALL N**
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> eth5 = Mixed
+
++-------------------+
+| Key               |
+|-------------------|
+|     frequency     |
+| column percentage |
++-------------------+
+
+incident_t |       confirmed
+       1dm |         0          1 |     Total
+-----------+----------------------+----------
+         0 |   265,425        848 |   266,273 
+           |    100.00     100.00 |    100.00 
+-----------+----------------------+----------
+     Total |   265,425        848 |   266,273 
+           |    100.00     100.00 |    100.00 
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> eth5 = Other
+
++-------------------+
+| Key               |
+|-------------------|
+|     frequency     |
+| column percentage |
++-------------------+
+
+incident_t |       confirmed
+       1dm |         0          1 |     Total
+-----------+----------------------+----------
+         0 |   389,943      1,155 |   391,098 
+           |    100.00     100.00 |    100.00 
+-----------+----------------------+----------
+     Total |   389,943      1,155 |   391,098 
+           |    100.00     100.00 |    100.00 
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> eth5 = Unknown
+
+**TABLE OF incident_t1dm confirmed REDACTED DUE TO SMALL N**
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> imd = 1 least deprived
+
+**TABLE OF incident_t1dm confirmed REDACTED DUE TO SMALL N**
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> imd = 2
+
+**TABLE OF incident_t1dm confirmed REDACTED DUE TO SMALL N**
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> imd = 3
+
+**TABLE OF incident_t1dm confirmed REDACTED DUE TO SMALL N**
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> imd = 4
+
+**TABLE OF incident_t1dm confirmed REDACTED DUE TO SMALL N**
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> imd = 5 most deprived
+
+**TABLE OF incident_t1dm confirmed REDACTED DUE TO SMALL N**
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> imd = Unknown
+
++-------------------+
+| Key               |
+|-------------------|
+|     frequency     |
+| column percentage |
++-------------------+
+
+incident_t |       confirmed
+       1dm |         0          1 |     Total
+-----------+----------------------+----------
+         0 |   193,810        665 |   194,475 
+           |    100.00     100.00 |    100.00 
+-----------+----------------------+----------
+     Total |   193,810        665 |   194,475 
+           |    100.00     100.00 |    100.00 
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> region = 
+
++-------------------+
+| Key               |
+|-------------------|
+|     frequency     |
+| column percentage |
++-------------------+
+
+incident_t |       confirmed
+       1dm |         0          1 |     Total
+-----------+----------------------+----------
+         0 |     3,481         11 |     3,492 
+           |    100.00     100.00 |    100.00 
+-----------+----------------------+----------
+     Total |     3,481         11 |     3,492 
+           |    100.00     100.00 |    100.00 
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> region = East
+
+**TABLE OF incident_t1dm confirmed REDACTED DUE TO SMALL N**
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> region = East Midlands
+
+**TABLE OF incident_t1dm confirmed REDACTED DUE TO SMALL N**
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> region = London
+
+**TABLE OF incident_t1dm confirmed REDACTED DUE TO SMALL N**
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> region = North East
+
+**TABLE OF incident_t1dm confirmed REDACTED DUE TO SMALL N**
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> region = North West
+
++-------------------+
+| Key               |
+|-------------------|
+|     frequency     |
+| column percentage |
++-------------------+
+
+incident_t |       confirmed
+       1dm |         0          1 |     Total
+-----------+----------------------+----------
+         0 | 1,908,452      7,358 | 1,915,810 
+           |    100.00     100.00 |    100.00 
+-----------+----------------------+----------
+     Total | 1,908,452      7,358 | 1,915,810 
+           |    100.00     100.00 |    100.00 
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> region = South East
+
+**TABLE OF incident_t1dm confirmed REDACTED DUE TO SMALL N**
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> region = South West
+
++-------------------+
+| Key               |
+|-------------------|
+|     frequency     |
+| column percentage |
++-------------------+
+
+incident_t |       confirmed
+       1dm |         0          1 |     Total
+-----------+----------------------+----------
+         0 | 2,952,211      5,817 | 2,958,028 
+           |    100.00     100.00 |    100.00 
+-----------+----------------------+----------
+     Total | 2,952,211      5,817 | 2,958,028 
+           |    100.00     100.00 |    100.00 
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> region = West Midlands
+
+**TABLE OF incident_t1dm confirmed REDACTED DUE TO SMALL N**
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+-> region = Yorkshire and The Humber
+
+**TABLE OF incident_t1dm confirmed REDACTED DUE TO SMALL N**
+
+
+. 
+. preserve
+
+. collapse (count) population=confirmed  (sum) confirmed  baseline_t1dm incident_t1dm, by(agecat)
+
+. gen var=1
+
+. save "$Tempdir/table0_overall.dta", replace
+(note: file E:\alex\T1DM_covid_research/output/tempdata/table0_overall.dta not found)
+file E:\alex\T1DM_covid_research/output/tempdata/table0_overall.dta saved
+
+. restore
+
+. 
+. preserve
+
+. collapse (count) population=confirmed (sum) confirmed baseline_t1dm incident_t1dm, by(agecat sex)
+
+. gen var=2
+
+. save "$Tempdir/table0_sex.dta", replace
+(note: file E:\alex\T1DM_covid_research/output/tempdata/table0_sex.dta not found)
+file E:\alex\T1DM_covid_research/output/tempdata/table0_sex.dta saved
+
+. restore
+
+. 
+. preserve
+
+. collapse (count) population=confirmed (sum) confirmed  baseline_t1dm incident_t1dm, by(agecat eth5)
+
+. gen var=3
+
+. save "$Tempdir/table0_eth.dta", replace
+(note: file E:\alex\T1DM_covid_research/output/tempdata/table0_eth.dta not found)
+file E:\alex\T1DM_covid_research/output/tempdata/table0_eth.dta saved
+
+. restore
+
+. 
+. *combine datasets to create a simple table of proportions and counts
+. use "$Tempdir/table0_overall.dta", clear
+
+. append using "$Tempdir/table0_sex.dta"
+(label agecat already defined)
+
+. append using "$Tempdir/table0_eth.dta"
+(label agecat already defined)
+
+. destring var, replace
+var already numeric; no replace
+
+. 
+. label define var 1"Overall" 2"Sex" 3"Eth"
+
+. label values var var
+
+. sort agecat var 
+
+. 
+. *create proportions
+. 
+. gen baseline_t1dm_percent=baseline_t1dm/confirmed*100
+
+. gen incident_t1dm_percent=incident_t1dm/confirmed*100
+
+. gen confirmed_percent=confirmed/baseline_t1dm*100
+(27 missing values generated)
+
+. 
+. label var baseline_t1dm_percent "% of people with COVID who had T1DM prior to infection"
+
+. label var incident_t1dm_percent "% of people with COVID who had T1DM after"
+
+. label var confirmed_percent "% of people with T1DM who had COVID after T1DM diagnosis"
+
+. 
+. *save dataset for use as table
+. outsheet using "$Tabfigdir/02_t1dm_an_feasibility_counts.txt", replace
+(note: file E:\alex\T1DM_covid_research/output/tabfig/02_t1dm_an_feasibility_counts.txt not found)
+
+. save "$Tempdir/02_t1dm_an_feasibility_count.dta", replace
+(note: file E:\alex\T1DM_covid_research/output/tempdata/02_t1dm_an_feasibility_count.dta not found)
+file E:\alex\T1DM_covid_research/output/tempdata/02_t1dm_an_feasibility_count.dta saved
+
+. insheet using "$Tabfigdir/02_t1dm_an_feasibility_counts.txt", clear
+(11 vars, 27 obs)
+
+. 
+end of do-file
+
+. 
+end of do-file
+
+. do "E:\STATATMP\STD297c_000000.tmp"
+
+. import delimited `c(pwd)'/output/input.csv, clear
+(19 vars, 21,750,276 obs)
+
+. 
+end of do-file
+
+. exit, clear
