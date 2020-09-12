@@ -23,35 +23,33 @@ log using "$Logdir/02_t1dm_an_feasibility_counts.log", replace t
 
 use "$Tempdir/analysis_dataset.dta", clear
 safecount
-drop if baseline_t1dm==1
-safecount
+safetab baseline_t1dm
 
-
-local var "incident_t1dm"
+local var "incident_t1dm monthbefore_t1dm"
 foreach i of local var {
-	safetab `i'
-	safetab `i' confirmed, col
-	bysort agecat: safetab `i' confirmed, col
-	bysort sex: safetab `i' confirmed, col
-	bysort eth5: safetab `i' confirmed, col
-	bysort imd: safetab `i' confirmed, col
-	bysort region: safetab `i' confirmed, col
+	safetab `i' if baseline_t1dm==0
+	safetab `i' covid if baseline_t1dm==0, col
+	bysort agecat: safetab `i' covid if baseline_t1dm==0, col
+	bysort sex: safetab `i' covid if baseline_t1dm==0, col
+	bysort eth5: safetab `i' covid if baseline_t1dm==0, col
+	bysort imd: safetab `i' covid if baseline_t1dm==0, col
+	bysort region: safetab `i' covid if baseline_t1dm==0, col
 }
 
 preserve
-collapse (count) population=confirmed  (sum) confirmed  baseline_t1dm incident_t1dm, by(agecat)
+collapse (count) population=covid  (sum) covid baseline_t1dm incident_t1dm monthbefore_t1dm, by(agecat)
 gen var=1
 save "$Tempdir/table0_overall.dta", replace
 restore
 
 preserve
-collapse (count) population=confirmed (sum) confirmed baseline_t1dm incident_t1dm, by(agecat sex)
+collapse (count) population=covid  (sum) covid baseline_t1dm incident_t1dm monthbefore_t1dm, by(agecat sex)
 gen var=2
 save "$Tempdir/table0_sex.dta", replace
 restore
 
 preserve
-collapse (count) population=confirmed (sum) confirmed  baseline_t1dm incident_t1dm, by(agecat eth5)
+collapse (count) population=covid  (sum) covid baseline_t1dm incident_t1dm monthbefore_t1dm, by(agecat eth5)
 gen var=3
 save "$Tempdir/table0_eth.dta", replace
 restore
@@ -67,14 +65,13 @@ label values var var
 sort agecat var 
 
 *create proportions
+gen incident_t1dm_percent=incident_t1dm/covid*100
+gen monthbefore_t1dm_percent=monthbefore_t1dm/covid*100
+gen covid_percent=covid/baseline_t1dm*100
 
-gen baseline_t1dm_percent=baseline_t1dm/confirmed*100
-gen incident_t1dm_percent=incident_t1dm/confirmed*100
-gen confirmed_percent=confirmed/baseline_t1dm*100
-
-label var baseline_t1dm_percent "% of people with COVID who had T1DM prior to infection"
+label var monthbefore_t1dm_percent "% of people with COVID who had T1DM in 30 days before or anytime after to infection"
 label var incident_t1dm_percent "% of people with COVID who had T1DM after"
-label var confirmed_percent "% of people with T1DM who had COVID after T1DM diagnosis"
+label var covid_percent "% of people with T1DM who had COVID after T1DM diagnosis"
 
 *save dataset for use as table
 outsheet using "$Tabfigdir/02_t1dm_an_feasibility_counts.txt", replace

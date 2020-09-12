@@ -67,7 +67,9 @@ format indexdate %d
 
 	
 ren primary_care_case			confirmed_date
+ren first_positive_test_date	positivetest_date
 ren type1_diabetes				t1dm_date
+ren died_date_ons				death_date
 
 /* CONVERT STRINGS TO DATE FOR COVID EXPOSURE VARIABLES =============================*/
 * Recode to dates from the strings 
@@ -89,30 +91,39 @@ foreach i of global outcomes {
 }
 
 
-*If covid occurs on the first day of follow-up add one day
-foreach i of global outcomes {
-	di "`i'"
-	count if `i'_date==indexdate
-	replace `i'_date=`i'_date+1 if `i'_date==indexdate
-}
 *date of deregistration
 rename dereg_date dereg_dstr
 	gen dereg_date = date(dereg_dstr, "YMD")
 	drop dereg_dstr
 	format dereg_date %td 
 
+*identify covid cases
+gen covid_date=min(confirmed_date, positivetest_date)
+format covid_date %td
+
+gen covid=0
+replace covid=1 if covid_date!=.
+safetab covid
+
 *Prior T1DM: identify those with baseline t1dm (prior to covid) and incident t1dm (post covid)
+
 tab t1dm 
 
 gen baseline_t1dm=0
-replace baseline_t1dm=1 if t1dm_date<confirmed_date
+replace baseline_t1dm=1 if t1dm_date<(covid_date-30)
 
 gen incident_t1dm=0
-replace incident_t1dm=1 if t1dm_date>=confirmed_date & t1dm_date!=.
+replace incident_t1dm=1 if t1dm_date>=covid_date & t1dm_date!=.
+
+*identify people with T1DM in the 30 days before covid
+gen monthbefore_t1dm=0
+replace monthbefore_t1dm=1 if t1dm_date>=(covid_date-30) & t1dm_date!=.
 
 safetab t1dm
 safetab baseline_t1dm
 safetab incident_t1dm
+safetab monthbefore_t1dm
+
 
 /* CENSORING */
 /* SET FU DATES===============================================================*/ 
@@ -236,11 +247,6 @@ recode imd 5 = 1 4 = 2 3 = 3 2 = 4 1 = 5 .u = .u
 label define imd 1 "1 least deprived" 2 "2" 3 "3" 4 "4" 5 "5 most deprived" .u "Unknown"
 label values imd imd 
 safetab imd, m
-
-
-
-
-
 
 sort patient_id
 save "$Tempdir/analysis_dataset.dta", replace

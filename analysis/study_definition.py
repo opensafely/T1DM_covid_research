@@ -36,7 +36,7 @@ study = StudyDefinition(
 
     ),
 
-    # COVID EXPOSURE
+    # PRIMARY CARE COVID EXPOSURE
     primary_care_case=patients.with_these_clinical_events(
         combine_codelists(covid_primary_care_code,
                           covid_primary_care_positive_test,
@@ -78,6 +78,47 @@ study = StudyDefinition(
         return_expectations={"rate" : "exponential_increase"},
 
     ),
+
+    #COVID DEATH
+    # ons
+    died_ons_covid_flag_any=patients.with_these_codes_on_death_certificate(
+        covid_codelist,
+        on_or_after="2020-02-01",
+        match_only_underlying_cause=False,
+        return_expectations={"date": {"earliest" : "2020-02-01"},
+        "rate" : "exponential_increase"},
+    ),
+    died_date_ons=patients.died_from_any_cause(
+        on_or_after="2020-02-01",
+        returning="date_of_death",
+        include_month=True,
+        include_day=True,
+        return_expectations={"date": {"earliest" : "2020-02-01"},
+        "rate" : "exponential_increase"},
+    ),
+
+    #COVID SGSS TEST
+    first_tested_for_covid=patients.with_test_result_in_sgss(
+        pathogen="SARS-CoV-2",
+        test_result="any",
+        on_or_after="2020-02-01",
+        find_first_match_in_period=True,
+        returning="date",
+        date_format="YYYY-MM-DD",
+        return_expectations={"date": {"earliest" : "2020-02-01"},
+        "rate" : "exponential_increase"},
+    ),
+    first_positive_test_date=patients.with_test_result_in_sgss(
+        pathogen="SARS-CoV-2",
+        test_result="positive",
+        on_or_after="2020-02-01",
+        find_first_match_in_period=True,
+        returning="date",
+        date_format="YYYY-MM-DD",
+        return_expectations={"date": {"earliest" : "2020-02-01"},
+        "rate" : "exponential_increase"},
+    ),
+
 
     #DIABETES OUTCOME
     type1_diabetes=patients.with_these_clinical_events(
