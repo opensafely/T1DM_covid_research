@@ -99,7 +99,7 @@ diabetes_unknown_codes = codelist_from_csv(
 )
 
 diabetes_t1_codes_secondary = codelist_from_csv(
-    "codelists/type-1-diabetes-secondary-care.csv", system="icd10", column="icd10_code"
+    "codelists/opensafely-type-1-diabetes-secondary-care.csv", system="icd10", column="icd10_code"
 )
 
 
