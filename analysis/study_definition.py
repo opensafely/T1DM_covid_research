@@ -79,6 +79,26 @@ study = StudyDefinition(
 
     ),
 
+# SECONDARY CARE COVID DIAGNOSIS
+    covid_admission_date=patients.admitted_to_hospital(
+        returning= "date_admitted" ,  # defaults to "binary_flag"
+        with_these_diagnoses=covid_codelist,  # optional
+        on_or_after="2020-02-01",
+        find_first_match_in_period=True,  
+        date_format="YYYY-MM-DD",  
+        return_expectations={"date": {"earliest": "2020-03-01"}, "incidence" : 0.95},
+   ),
+    covid_admission_primary_diagnosis=patients.admitted_to_hospital(
+        returning="primary_diagnosis",
+        with_these_diagnoses=covid_codelist,  # optional
+        on_or_after="2020-02-01",
+        find_first_match_in_period=True,  
+        date_format="YYYY-MM-DD", 
+        return_expectations={"date": {"earliest": "2020-03-01"},"incidence" : 0.95,
+            "category": {"ratios": {"U071":0.5, "U072":0.5}},
+        },
+    ),
+
     #COVID DEATH
     # ons
     died_ons_covid_flag_any=patients.with_these_codes_on_death_certificate(
@@ -120,7 +140,7 @@ study = StudyDefinition(
     ),
 
 
-    #DIABETES OUTCOME
+    #DIABETES OUTCOME PRIMARY CARE
     type1_diabetes=patients.with_these_clinical_events(
         diabetes_t1_codes,
         returning="date",
@@ -142,6 +162,7 @@ study = StudyDefinition(
         date_format="YYYY-MM-DD",
         return_expectations={"rate" : "exponential_increase"},
     ),
+
 
  
      diabetes_type=patients.categorised_as(
@@ -196,6 +217,28 @@ study = StudyDefinition(
             between=["2019-02-01", "2020-01-31"],
             returning="number_of_matches_in_period",
         ),
+
+    #DIABETES OUTCOME PRIMARY CARE
+    t1dm_admission_date=patients.admitted_to_hospital(
+        returning= "date_admitted" ,  # defaults to "binary_flag"
+        with_these_diagnoses=covid_codelist,  # optional
+        on_or_after="2020-02-01",
+        find_first_match_in_period=True,  
+        date_format="YYYY-MM-DD",  
+        return_expectations={"date": {"earliest": "2020-03-01"}, "incidence" : 0.95},
+   ),
+    t1dm_admission_primary_diagnosis=patients.admitted_to_hospital(
+        returning="primary_diagnosis",
+        with_these_diagnoses=covid_codelist,  # optional
+        on_or_after="2020-02-01",
+        find_first_match_in_period=True,  
+        date_format="YYYY-MM-DD", 
+        return_expectations={"date": {"earliest": "2020-03-01"},"incidence" : 0.95,
+            "category": {"ratios": {"U071":0.5, "U072":0.5}},
+        },
+    ),
+
+
     ),
 
 
