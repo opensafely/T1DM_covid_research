@@ -233,7 +233,6 @@ study = StudyDefinition(
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD", 
         return_expectations={"date": {"earliest": "2020-03-01"},"incidence" : 0.95,
-            "category": {"ratios": {"U071":0.5, "U072":0.5}},
         },
     ),
 
