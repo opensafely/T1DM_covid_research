@@ -233,8 +233,8 @@ study = StudyDefinition(
         on_or_after="2020-02-01",
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD", 
-        return_expectations={"date": {"earliest": "2020-03-01"},"incidence" : 0.95,
-        },
+        return_expectations={"date": {"earliest": "2020-03-01"},"incidence" : 0.95},
+        ,
     ),
 
 
