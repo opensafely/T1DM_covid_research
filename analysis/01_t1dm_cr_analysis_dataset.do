@@ -68,13 +68,13 @@ format indexdate %d
 ren primary_care_case					confirmed_date
 ren first_tested_for_covid				tested_date
 ren first_positive_test_date			positivetest_date
-ren covid_admission_date			 	hospitalised_date
+ren covid_admission_date			 	c19_hospitalised_date
 ren died_ons_covid_flag_any				coviddeath_date
 
 *T1DM
 ren type1_diabetes				t1dm_date
 ren type2_diabetes				t2dm_date
-
+ren t1dm_admission_date			t1dm_hospitalised_date
 *DEATH
 ren died_date_ons				death_date
 
@@ -109,16 +109,21 @@ replace dereg=1 if dereg_date < .
 safetab dereg
 
 *identify covid cases
-gen covid_date=min(confirmed_date, positivetest_date, hospitalised_date)
+gen covid_date=min(confirmed_date, positivetest_date, c19_hospitalised_date)
 format covid_date %td
 
 gen covid=0
 replace covid=1 if covid_date!=.
 safetab covid
 
-*Prior T1DM: identify those with baseline t1dm (prior to covid) and incident t1dm (post covid)
+*identify t1dm cases
+gen t1dm_date=min(t1dm_date, t1dm_hospitalised_date)
 
-tab t1dm 
+gen t1dm=0
+replace t1dm=1 if t1dm_date!=.
+safetab t1dm
+
+*Prior T1DM: identify those with baseline t1dm (prior to covid) and incident t1dm (post covid)
 
 gen baseline_t1dm=0
 replace baseline_t1dm=1 if t1dm_date<(covid_date-30)
