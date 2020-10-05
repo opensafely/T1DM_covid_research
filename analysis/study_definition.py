@@ -31,9 +31,8 @@ study = StudyDefinition(
 
     dereg_date=patients.date_deregistered_from_all_supported_practices(
         on_or_before="2020-12-01", 
-        date_format="YYYY-MM",
+        date_format="YYYY-MM-DD",
         return_expectations={"date": {"earliest": "2020-02-01"}},
-
     ),
 
     # PRIMARY CARE COVID EXPOSURE
@@ -86,7 +85,7 @@ study = StudyDefinition(
         on_or_after="2020-02-01",
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD",  
-        return_expectations={"date": {"earliest": "2020-03-01"}, "incidence" : 0.95},
+        return_expectations={"date": {"earliest": "2020-03-01"}, "incidence" : 0.25},
    ),
     covid_admission_primary_diagnosis=patients.admitted_to_hospital(
         returning="primary_diagnosis",
@@ -94,7 +93,7 @@ study = StudyDefinition(
         on_or_after="2020-02-01",
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD", 
-        return_expectations={"date": {"earliest": "2020-03-01"},"incidence" : 0.95,
+        return_expectations={"date": {"earliest": "2020-03-01"},"incidence" : 0.25,
             "category": {"ratios": {"U071":0.5, "U072":0.5}},
         },
     ),
