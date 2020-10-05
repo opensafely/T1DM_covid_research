@@ -2,7 +2,7 @@
 DO FILE NAME:			01_t1dm_cr_analysis_dataset
 PROJECT:				T1DM and COVID outcomes
 DATE: 					7th September 2020 
-AUTHOR:					Rohini Mathur adapted from ethnicity study										
+AUTHOR:					Rohini Mathur adapted from ethnicity study, subsequent edits (adding SUS data) by Kevin Wing									
 DESCRIPTION OF FILE:	program 01, data management for project  
 						reformat variables 
 						categorise variables
@@ -15,12 +15,17 @@ OTHER OUTPUT: 			logfiles, printed to folder analysis/$logdir
 
 							
 ==============================================================================*/
+cd ${outputData}
+clear all
 
-import delimited `c(pwd)'/output/input.csv, clear
+*import delimited `c(pwd)'/output/input.csv, clear
+import delimited input.csv
 
 * Open a log file
 cap log close
-log using "$Logdir/01_t1dm_cr_create_analysis_dataset.log", replace t
+*log using "$Logdir/01_t1dm_cr_create_analysis_dataset.log", replace t
+log using 01_t1dm_cr_create_analysis_dataset.log, replace t
+
 
 
 di "STARTING safecount FROM IMPORT:"
