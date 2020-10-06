@@ -15,15 +15,9 @@ OTHER OUTPUT: 			logfiles, printed to folder analysis/$logdir
 
 							
 ==============================================================================*/
-cd ${outputData}
-clear all
-
-*import delimited `c(pwd)'/output/input.csv, clear
-import delimited input.csv
 
 * Open a log file
 cap log close
-*log using "$Logdir/01_t1dm_cr_create_analysis_dataset.log", replace t
 log using 01_t1dm_cr_create_analysis_dataset.log, replace t
 
 
@@ -68,12 +62,20 @@ format indexdate %d
 
 /* CREATE VARIABLES===========================================================*/
 
-/* COVID EXPOSURE AND OUTCOME DEFINITIONS==================================================*/
+/* COVID EXPOSURE AND T1DM OUTCOME DEFINITIONS==================================================*/
 
-	
-ren primary_care_case			confirmed_date
-ren first_positive_test_date	positivetest_date
+*COVID	
+ren primary_care_case					confirmed_date
+ren first_tested_for_covid				tested_date
+ren first_positive_test_date			positivetest_date
+ren covid_admission_date			 	c19_hospitalised_date
+ren died_ons_covid_flag_any				coviddeath_date
+
+*T1DM
 ren type1_diabetes				t1dm_date
+ren type2_diabetes				t2dm_date
+ren t1dm_admission_date			t1dm_hospitalised_date
+*DEATH
 ren died_date_ons				death_date
 
 /* CONVERT STRINGS TO DATE FOR COVID EXPOSURE VARIABLES =============================*/
@@ -101,18 +103,27 @@ rename dereg_date dereg_dstr
 	gen dereg_date = date(dereg_dstr, "YMD")
 	drop dereg_dstr
 	format dereg_date %td 
+	
+gen dereg=0
+replace dereg=1 if dereg_date < .
+safetab dereg
 
 *identify covid cases
-gen covid_date=min(confirmed_date, positivetest_date)
+gen covid_date=min(confirmed_date, positivetest_date, c19_hospitalised_date)
 format covid_date %td
 
 gen covid=0
 replace covid=1 if covid_date!=.
 safetab covid
 
-*Prior T1DM: identify those with baseline t1dm (prior to covid) and incident t1dm (post covid)
+*identify t1dm cases
+gen t1dm_date=min(t1dm_date, t1dm_hospitalised_date)
 
-tab t1dm 
+gen t1dm=0
+replace t1dm=1 if t1dm_date!=.
+safetab t1dm
+
+*Prior T1DM: identify those with baseline t1dm (prior to covid) and incident t1dm (post covid)
 
 gen baseline_t1dm=0
 replace baseline_t1dm=1 if t1dm_date<(covid_date-30)
@@ -135,7 +146,7 @@ safetab monthbefore_t1dm
 
 * Censoring dates for each outcome (last date outcome data available)
 *https://github.com/opensafely/rapid-reports/blob/master/notebooks/latest-dates.ipynb
-gen t1dm_censor_date = d("17/08/2020")
+gen t1dm_censor_date = d("17/09/2020")
 format *censor_date %d
 sum *censor_date, format
 *******************************************************************************
@@ -175,16 +186,16 @@ safetab eth5, m
 * Ethnicity (16 category)
 replace ethnicity_16 = 17 if ethnicity_16==.
 label define ethnicity_16 									///
-						1 "British or Mixed British" 		///
+						1 "British" 		///
 						2 "Irish" 							///
 						3 "Other White" 					///
 						4 "White + Black Caribbean" 		///
 						5 "White + Black African"			///
 						6 "White + Asian" 					///
  						7 "Other mixed" 					///
-						8 "Indian or British Indian" 		///
-						9 "Pakistani or British Pakistani" 	///
-						10 "Bangladeshi or British Bangladeshi" ///
+						8 "Indian" 		///
+						9 "Pakistani" 	///
+						10 "Bangladeshi" ///
 						11 "Other Asian" 					///
 						12 "Caribbean" 						///
 						13 "African" 						///
