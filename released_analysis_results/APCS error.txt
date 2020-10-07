@@ -1,0 +1,34 @@
+$ /e/bin/cohortextractor.sh generate_cohort_sample
+Generating cohort for study_definition...
+Running. Please wait...
+[2020-10-06 09:13:09 UTC] Checking for existing results in 'OPENCoronaTempTables..DataExtract_4fcf802b6468c813cf40dda2a450fa76ae38ad35'
+[2020-10-06 09:13:10 UTC] No existing results found, running queries to generate new results
+[2020-10-06 09:13:10 UTC] Running: Query for dereg_date
+[2020-10-06 09:13:11 UTC] Running: Uploading codelist for primary_care_case
+[2020-10-06 09:13:11 UTC] Running: Query for primary_care_case
+[2020-10-06 09:13:11 UTC] Running: Uploading codelist for primary_care_historic_case
+[2020-10-06 09:13:11 UTC] Running: Query for primary_care_historic_case
+[2020-10-06 09:13:11 UTC] Running: Uploading codelist for primary_care_exposure
+[2020-10-06 09:13:11 UTC] Running: Query for primary_care_exposure
+[2020-10-06 09:13:11 UTC] Running: Uploading codelist for primary_care_suspect_case
+[2020-10-06 09:13:11 UTC] Running: Query for primary_care_suspect_case
+[2020-10-06 09:13:11 UTC] Running: Query for covid_admission_date
+Exception at 2020-10-06 09:13:11 UTC
+Traceback (most recent call last):
+  File "/root/.pyenv/versions/3.7.8/bin/cohortextractor", line 11, in <module>
+    load_entry_point('opensafely-cohort-extractor', 'console_scripts', 'cohortextractor')()
+  File "/app/cohortextractor/cohortextractor.py", line 665, in main
+    skip_existing=options.skip_existing,
+  File "/app/cohortextractor/cohortextractor.py", line 149, in generate_cohort
+    skip_existing=skip_existing,
+  File "/app/cohortextractor/cohortextractor.py", line 178, in _generate_cohort
+    output_file, expectations_population=expectations_population,
+  File "/app/cohortextractor/study_definition.py", line 76, in to_csv
+    self.backend.to_csv(filename, **kwargs)
+  File "/app/cohortextractor/tpp_backend.py", line 40, in to_csv
+    queries, cleanup_queries = self.save_results_to_temporary_db(queries)
+  File "/app/cohortextractor/tpp_backend.py", line 124, in save_results_to_temporary_db
+    self.execute_queries(queries)
+  File "/app/cohortextractor/tpp_backend.py", line 303, in execute_queries
+    cursor.execute(query)
+_tds.ProgrammingError: Invalid object name 'APCS'.
