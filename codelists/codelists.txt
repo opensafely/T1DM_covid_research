@@ -3,6 +3,8 @@ opensafely/insulin-medication/2020-04-26
 opensafely/diabetes-unknown-type/2020-06-29
 opensafely/type-1-diabetes/2020-06-29
 opensafely/type-1-diabetes-secondary-care/2020-09-27
+opensafely/diabetic-ketoacidosis/2020-10-07
+opensafely/diabetic-ketoacidosis-secondary-care/2020-10-07
 opensafely/type-2-diabetes/2020-06-29
 opensafely/antidiabetic-drugs/2020-07-16
 opensafely/covid-identification-in-primary-care-suspected-covid-suspected-codes/2020-07-16

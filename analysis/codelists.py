@@ -102,6 +102,14 @@ diabetes_t1_codes_secondary = codelist_from_csv(
     "codelists/opensafely-type-1-diabetes-secondary-care.csv", system="icd10", column="icd10_code"
 )
 
+diabetic_ketoacidosis_codes = codelist_from_csv(
+    "codelists/opensafely-diabetic-ketoacidosis.csv", system="ctv3", column="CTV3ID"
+)
+
+diabetic_ketoacidosis_codes_secondary = codelist_from_csv(
+    "codelists/opensafely-diabetic-ketoacidosis-secondary-care.csv", system="icd10", column="icd10_code"
+)
+
 
 insulin_med_codes = codelist_from_csv(
     "codelists/opensafely-insulin-medication.csv", 
