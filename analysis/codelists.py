@@ -103,7 +103,7 @@ diabetes_t1_codes_secondary = codelist_from_csv(
 )
 
 diabetic_ketoacidosis_codes = codelist_from_csv(
-    "codelists/opensafely-diabetes-ketoacidosis-ctv3-dka-unspecific.csv", system="ctv3", column="CTV3ID"
+    "codelists/opensafely-diabetes-ketoacidosis-ctv3-dka-unspecific.csv", system="ctv3", column="ctv3_id"
 )
 
 diabetic_ketoacidosis_codes_secondary = codelist_from_csv(
