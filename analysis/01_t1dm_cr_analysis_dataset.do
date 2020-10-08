@@ -100,6 +100,7 @@ foreach i of global outcomes {
 		gen `i'=0
 		replace  `i'=1 if `i'_date < .
 		safetab `i'
+		label variable `i' "`i'"
 }
 
 
@@ -126,35 +127,38 @@ gen t1dm_date=min(t1dm_primarycare_date, t1dm_hospitalised_date)
 
 gen t1dm=0
 replace t1dm=1 if t1dm_date!=.
-safetab t1dm
 
 *identify keto cases
 gen keto_date=min(keto_primarycare_date, keto_hospitalised_date)
-
 gen keto=0
 replace keto=1 if keto_date!=.
-safetab keto
 
 *identify either
 gen t1dm_keto_date=min(keto_primarycare_date, keto_hospitalised_date, t1dm_primarycare_date, t1dm_hospitalised_date)
-
 gen t1dm_keto=0
 replace t1dm_keto=1 if t1dm_keto_date!=.
-safetab t1dm_keto
+
+
+local p "covid t1dm keto t1dm_keto"
+foreach i of local p {
+label define `i' 0"No `i'" 1"`i'"
+label values `i' `i'
+safetab `i'
+}
 
 
 *identify those with baseline t1dm/dka (prior to covid) and incident t1dm/dka (post covid)
 local p "t1dm keto t1dm_keto"
 foreach i of local p {
 gen baseline_`i'=0
-replace baseline_`i'=1 if `i'_date<(covid_date-30)
+replace baseline_`i'=1 if `i'_date<(covid_date-30) & covid_date!=.
 
 gen incident_`i'=0
-replace incident_`i'=1 if `i'_date>=covid_date & `i'_date!=.
+replace incident_`i'=1 if `i'_date>=covid_date & `i'_date!=. & covid_date!=.
 
 *identify people with T1DM/dka in the 30 days before covid
 gen monthbefore_`i'=0
-replace monthbefore_`i'=1 if `i'_date>=(covid_date-30) & `i'_date!=.
+replace monthbefore_`i'=1 if `i'_date>=(covid_date-30) & `i'_date!=. & covid_date!=.
 }
 
 local p "t1dm keto t1dm_keto"
@@ -173,7 +177,7 @@ safetab monthbefore_`i'
 *https://github.com/opensafely/rapid-reports/blob/master/notebooks/latest-dates.ipynb
 
 *outcomes are t1dm and ketoacidosis- censoring should be at earliest of TPP or SUS end date
-gen t1dm_censor_date = d("17/09/2020")
+gen t1dm_censor_date = d("31/08/2020")
 format *censor_date %d
 sum *censor_date, format
 *******************************************************************************
@@ -290,6 +294,46 @@ recode imd 5 = 1 4 = 2 3 = 3 2 = 4 1 = 5 .u = .u
 label define imd 1 "1 least deprived" 2 "2" 3 "3" 4 "4" 5 "5 most deprived" .u "Unknown"
 label values imd imd 
 safetab imd, m
+
+/* LABEL VARIABLES============================================================*/
+*  Label variables you are intending to keep, drop the rest 
+
+
+* Demographics
+label var patient_id				"Patient ID"
+label var age 						"Age (years)"
+label var agegroup					"Grouped age"
+label var agecat					"3 catgories of age"
+label var sex 						"Sex"
+label var male 						"Male"
+label var imd 						"Index of Multiple Deprivation (IMD)"
+label var eth5						"Eth 5 categories"
+label var ethnicity_16				"Eth 16 categories"
+label var stp 						"Sustainability and Transformation Partnership"
+lab var region						"Region of England"
+
+/* Outcomes and follow-up
+label var indexdate					"Date of study start (Feb 1 2020)"
+foreach i of global outcomes {
+	label var `i'_censor_date		 "Date of admin censoring"
+}
+*/
+*Outcome dates
+foreach i of global outcomes {
+	label var `i'_date					"Failure date:  `i'"
+	d `i'_date
+}
+
+* binary outcome indicators
+foreach i of global outcomes {
+	lab var `i' 					"`i'"
+	safetab `i'
+}
+
+foreach i of global outcomes2 {
+	lab var `i' 					"`i'"
+	safetab `i'
+}
 
 sort patient_id
 save "$Tempdir/analysis_dataset.dta", replace
