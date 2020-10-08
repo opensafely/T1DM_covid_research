@@ -21,8 +21,6 @@ cap log close
 log using 01_t1dm_cr_create_analysis_dataset.log, replace t
 import delimited `c(pwd)'/output/input.csv, clear
 
-
-
 di "STARTING safecount FROM IMPORT:"
 safecount
 
@@ -178,6 +176,9 @@ safetab monthbefore_`i'
 
 *outcomes are t1dm and ketoacidosis- censoring should be at earliest of TPP or SUS end date
 gen t1dm_censor_date = d("31/08/2020")
+gen keto_censor_date = d("31/08/2020")
+gen t1dm_keto_censor_date = d("31/08/2020")
+
 format *censor_date %d
 sum *censor_date, format
 *******************************************************************************
@@ -295,6 +296,25 @@ label define imd 1 "1 least deprived" 2 "2" 3 "3" 4 "4" 5 "5 most deprived" .u "
 label values imd imd 
 safetab imd, m
 
+
+/**** Create survival times  ****/
+* For looping later, name must be stime_binary_outcome_name
+
+* Survival time = last followup date (first: deregistration date, end study, death, or that outcome)
+*Ventilation does not have a survival time because it is a yes/no flag
+foreach i of global outcomes3 {
+	gen stime_`i' = min(`i'_censor_date, death_date, `i'_date, dereg_date)
+}
+
+* If outcome occurs after censoring, set to zero
+foreach i of global outcomes3 {
+	replace `i'=0 if `i'_date>stime_`i'
+	tab `i'
+}
+
+* Format date variables
+format  stime* %td 
+
 /* LABEL VARIABLES============================================================*/
 *  Label variables you are intending to keep, drop the rest 
 
@@ -336,7 +356,24 @@ foreach i of global outcomes2 {
 }
 
 sort patient_id
+
+
 save "$Tempdir/analysis_dataset.dta", replace
+
+****************************************************************
+*  Create outcome specific datasets for the whole population  *
+*****************************************************************
+
+
+foreach i of global outcomes3 {
+	use "$Tempdir/analysis_dataset.dta", clear
+	
+	drop if `i'_date <= indexdate 
+
+	stset stime_`i', fail(`i') 				///	
+	id(patient_id) enter(indexdate) origin(indexdate)
+	save "$Tempdir/analysis_dataset_STSET_`i'.dta", replace
+}	
 
 	
 * Close log file 
