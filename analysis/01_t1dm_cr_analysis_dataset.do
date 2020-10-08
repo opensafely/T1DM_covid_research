@@ -13,12 +13,13 @@ DATASETS CREATED: 		none
 OTHER OUTPUT: 			logfiles, printed to folder analysis/$logdir
 
 
-							
+				
 ==============================================================================*/
 
 * Open a log file
 cap log close
 log using 01_t1dm_cr_create_analysis_dataset.log, replace t
+import delimited `c(pwd)'/output/input.csv, clear
 
 
 
@@ -72,9 +73,13 @@ ren covid_admission_date			 	c19_hospitalised_date
 ren died_ons_covid_flag_any				coviddeath_date
 
 *T1DM
-ren type1_diabetes				t1dm_date
-ren type2_diabetes				t2dm_date
+ren type1_diabetes				t1dm_primarycare_date
+ren type2_diabetes				t2dm_primarycare_date
+ren ketoacidosis				keto_primarycare_date
+
 ren t1dm_admission_date			t1dm_hospitalised_date
+ren ketoacidosis_admission_date	keto_hospitalised_date
+	 
 *DEATH
 ren died_date_ons				death_date
 
@@ -117,35 +122,57 @@ replace covid=1 if covid_date!=.
 safetab covid
 
 *identify t1dm cases
-gen t1dm_date=min(t1dm_date, t1dm_hospitalised_date)
+gen t1dm_date=min(t1dm_primarycare_date, t1dm_hospitalised_date)
 
 gen t1dm=0
 replace t1dm=1 if t1dm_date!=.
 safetab t1dm
 
-*Prior T1DM: identify those with baseline t1dm (prior to covid) and incident t1dm (post covid)
+*identify keto cases
+gen keto_date=min(keto_primarycare_date, keto_hospitalised_date)
 
-gen baseline_t1dm=0
-replace baseline_t1dm=1 if t1dm_date<(covid_date-30)
+gen keto=0
+replace keto=1 if keto_date!=.
+safetab keto
 
-gen incident_t1dm=0
-replace incident_t1dm=1 if t1dm_date>=covid_date & t1dm_date!=.
+*identify either
+gen t1dm_keto_date=min(keto_primarycare_date, keto_hospitalised_date, t1dm_primarycare_date, t1dm_hospitalised_date)
 
-*identify people with T1DM in the 30 days before covid
-gen monthbefore_t1dm=0
-replace monthbefore_t1dm=1 if t1dm_date>=(covid_date-30) & t1dm_date!=.
+gen t1dm_keto=0
+replace t1dm_keto=1 if t1dm_keto_date!=.
+safetab t1dm_keto
 
-safetab t1dm
-safetab baseline_t1dm
-safetab incident_t1dm
-safetab monthbefore_t1dm
 
+*identify those with baseline t1dm/dka (prior to covid) and incident t1dm/dka (post covid)
+local p "t1dm keto t1dm_keto"
+foreach i of local p {
+gen baseline_`i'=0
+replace baseline_`i'=1 if `i'_date<(covid_date-30)
+
+gen incident_`i'=0
+replace incident_`i'=1 if `i'_date>=covid_date & `i'_date!=.
+
+*identify people with T1DM/dka in the 30 days before covid
+gen monthbefore_`i'=0
+replace monthbefore_`i'=1 if `i'_date>=(covid_date-30) & `i'_date!=.
+}
+
+local p "t1dm keto t1dm_keto"
+foreach i of local p {
+
+safetab `i'
+safetab baseline_`i'
+safetab incident_`i'
+safetab monthbefore_`i'
+}
 
 /* CENSORING */
 /* SET FU DATES===============================================================*/ 
 
-* Censoring dates for each outcome (last date outcome data available)
+* Censoring dates for each outcome (last date outcome data available) 
 *https://github.com/opensafely/rapid-reports/blob/master/notebooks/latest-dates.ipynb
+
+*outcomes are t1dm and ketoacidosis- censoring should be at earliest of TPP or SUS end date
 gen t1dm_censor_date = d("17/09/2020")
 format *censor_date %d
 sum *censor_date, format
