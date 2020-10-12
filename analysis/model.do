@@ -36,8 +36,9 @@ global tempdir    "$Tempdir"
 
 *will add death to the global when we do survival analysis for censoring purposes
 
-global outcomes "confirmed positivetest t1dm death"
-
+global outcomes "confirmed tested positivetest c19_hospitalised t1dm_primarycare t1dm_hospitalised t2dm_primarycare keto_primarycare  keto_hospitalised death"
+global  outcomes2 "t1dm keto t1dm_keto baseline_t1dm incident_t1dm monthbefore_t1dm baseline_keto incident_keto monthbefore_t1dm_keto  baseline_t1dm_keto incident_t1dm_keto monthbefore_keto"
+global outcomes3 "t1dm keto t1dm_keto"
 /**********************
 Data cleaning
 **********************/
@@ -47,3 +48,9 @@ do "$Dodir/01_t1dm_cr_analysis_dataset.do"
 
 *Feasibility counts
 do "$Dodir/02_t1dm_an_feasibility_counts.do"
+
+*Table 1 descriptives
+do "$Dodir/03_t1dm_table1_descriptives.do"
+
+*Time to event
+do "$Dodir/04_t1dm_an_multivariable.do"
