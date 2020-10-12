@@ -1,7 +1,7 @@
 /*==============================================================================
 DO FILE NAME:			04_t1dm_an_multivariable_
 PROJECT:				Ethnicity and COVID
-AUTHOR:					R Mathur (modified from A wong and A Schultze)
+AUTHOR:					R Mathur (modified from A wong and A Schultze), additional edits K Wing
 DATE: 					15 July 2020					
 DESCRIPTION OF FILE:	program 06 
 						univariable regression

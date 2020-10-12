@@ -2,7 +2,7 @@
 DO FILE NAME:			02_t1dm_an_feasibility_counts
 PROJECT:				T1DM and COVID outcomes
 DATE: 					7th September 2020 
-AUTHOR:					Rohini Mathur adapted from ethnicity study										
+AUTHOR:					Rohini Mathur (RM) adapted from ethnicity study, subsequent edits by Kevin Wing (KW)									
 DESCRIPTION OF FILE:	program 02, initial counts  
 						reformat variables 
 						categorise variables

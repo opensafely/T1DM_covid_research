@@ -2,7 +2,7 @@
 DO FILE NAME:			03_t1dm_table1_descriptives
 PROJECT:				T1DM and COVID-19 
 DATE: 					8th October 2020 
-AUTHOR:					R Mathur
+AUTHOR:					R Mathur, additional edits by K Wing
 						adapted from Ethnicity study	
 DESCRIPTION OF FILE:	Produce a table of baseline characteristics by COVID exposure
 						Output to a textfile for further formatting
