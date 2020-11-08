@@ -17,4 +17,6 @@ opensafely/covid-identification-in-primary-care-probable-covid-sequelae/2020-07-
 opensafely/covid-identification-in-primary-care-exposure-to-disease/2020-06-23
 opensafely/covid-identification-in-primary-care-historic-case/2020-06-23
 opensafely/covid-identification-in-primary-care-potential-historic-case/2020-06-23
+opensafely/hypertension/2020-04-28
+opensafely/smoking-clear/2020-04-29
 
