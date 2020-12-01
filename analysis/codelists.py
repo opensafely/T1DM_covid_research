@@ -69,9 +69,6 @@ covid_suspected_test = codelist_from_csv(
     column="CTV3ID",
 )
 
-
-
-
 ethnicity_codes = codelist_from_csv(
     "codelists/opensafely-ethnicity.csv",
     system="ctv3",
@@ -102,16 +99,36 @@ diabetes_t1_codes_secondary = codelist_from_csv(
     "codelists/opensafely-type-1-diabetes-secondary-care.csv", system="icd10", column="icd10_code"
 )
 
+diabetic_ketoacidosis_codes = codelist_from_csv(
+    "codelists/opensafely-diabetes-ketoacidosis-ctv3-dka-unspecific.csv", system="ctv3", column="ctv3_id"
+)
+
+diabetic_ketoacidosis_codes_secondary = codelist_from_csv(
+    "codelists/opensafely-diabetic-ketoacidosis-secondary-care.csv", system="icd10", column="icd10_code"
+)
+
 
 insulin_med_codes = codelist_from_csv(
     "codelists/opensafely-insulin-medication.csv", 
     system="snomed", 
     column="id"
 )
-
-
 oad_med_codes = codelist_from_csv(
     "codelists/opensafely-antidiabetic-drugs.csv",
     system="snomed",
     column="id"
+)
+hba1c_new_codes = codelist(["XaPbt", "Xaeze", "Xaezd"], system="ctv3")
+hba1c_old_codes = codelist(["X772q", "XaERo", "XaERp"], system="ctv3")
+
+hypertension_codes = codelist_from_csv(
+    "codelists/opensafely-hypertension.csv",
+    system="ctv3",
+    column="CTV3ID"
+)
+clear_smoking_codes = codelist_from_csv(
+    "codelists/opensafely-smoking-clear.csv",
+    system="ctv3",
+    column="CTV3Code",
+    category_column="Category",
 )

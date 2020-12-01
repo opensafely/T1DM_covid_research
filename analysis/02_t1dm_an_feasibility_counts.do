@@ -25,52 +25,74 @@ use "$Tempdir/analysis_dataset.dta", clear
 safecount
 safetab baseline_t1dm
 
-local var "incident_t1dm monthbefore_t1dm"
+local var "incident_t1dm incident_keto incident_t1dm_keto monthbefore_t1dm monthbefore_keto monthbefore_t1dm_keto  "
 foreach i of local var {
 	safetab `i' if baseline_t1dm==0
 	safetab `i' covid if baseline_t1dm==0, col
 	bysort agecat: safetab `i' covid if baseline_t1dm==0, col
 	bysort sex: safetab `i' covid if baseline_t1dm==0, col
 	bysort eth5: safetab `i' covid if baseline_t1dm==0, col
-	bysort imd: safetab `i' covid if baseline_t1dm==0, col
-	bysort region: safetab `i' covid if baseline_t1dm==0, col
 }
 
 preserve
-collapse (count) population=covid  (sum) covid baseline_t1dm incident_t1dm monthbefore_t1dm, by(agecat)
+collapse (count) population=covid  (sum) covid baseline_t1dm incident_t1dm incident_keto incident_t1dm_keto monthbefore_t1dm monthbefore_keto monthbefore_t1dm_keto
 gen var=1
 save "$Tempdir/table0_overall.dta", replace
 restore
 
 preserve
-collapse (count) population=covid  (sum) covid baseline_t1dm incident_t1dm monthbefore_t1dm, by(agecat sex)
+collapse (count) population=covid  (sum) covid baseline_t1dm incident_t1dm incident_keto incident_t1dm_keto monthbefore_t1dm monthbefore_keto monthbefore_t1dm_keto, by(sex)
 gen var=2
 save "$Tempdir/table0_sex.dta", replace
 restore
 
 preserve
-collapse (count) population=covid  (sum) covid baseline_t1dm incident_t1dm monthbefore_t1dm, by(agecat eth5)
+collapse (count) population=covid  (sum) covid baseline_t1dm incident_t1dm incident_keto incident_t1dm_keto monthbefore_t1dm monthbefore_keto monthbefore_t1dm_keto, by(eth5)
 gen var=3
 save "$Tempdir/table0_eth.dta", replace
 restore
 
+preserve
+collapse (count) population=covid  (sum) covid baseline_t1dm incident_t1dm incident_keto incident_t1dm_keto monthbefore_t1dm monthbefore_keto monthbefore_t1dm_keto, by(agecat)
+gen var=4
+save "$Tempdir/table0_age.dta", replace
+restore
+
+preserve
+collapse (count) population=covid  (sum) covid baseline_t1dm incident_t1dm incident_keto incident_t1dm_keto monthbefore_t1dm monthbefore_keto monthbefore_t1dm_keto, by(agecat sex)
+gen var=5
+save "$Tempdir/table0_agesex.dta", replace
+restore
+
+preserve
+collapse (count) population=covid  (sum) covid baseline_t1dm incident_t1dm incident_keto incident_t1dm_keto monthbefore_t1dm monthbefore_keto monthbefore_t1dm_keto, by(agecat eth5)
+gen var=6
+save "$Tempdir/table0_ageeth.dta", replace
+restore
+
 *combine datasets to create a simple table of proportions and counts
 use "$Tempdir/table0_overall.dta", clear
+append using "$Tempdir/table0_age.dta"
 append using "$Tempdir/table0_sex.dta"
 append using "$Tempdir/table0_eth.dta"
+append using "$Tempdir/table0_agesex.dta"
+append using "$Tempdir/table0_ageeth.dta"
 destring var, replace
-
-label define var 1"Overall" 2"Sex" 3"Eth"
+label define var 1"Overall" 2"Sex" 3"Eth" 4"Age" 5"Age-sex" 6"Age-eth"
 label values var var
-sort agecat var 
+replace agecat=0 if agecat==. 
+label define agecat 0 "All ages", modify
+label values agecat agecat
+sort var agecat  
 
 *create proportions
-gen incident_t1dm_percent=incident_t1dm/covid*100
-gen monthbefore_t1dm_percent=monthbefore_t1dm/covid*100
+local var "incident_t1dm incident_keto incident_t1dm_keto monthbefore_t1dm monthbefore_keto monthbefore_t1dm_keto  "
+foreach i of local var {
+gen `i'_percent=`i'/covid*100
+label var `i'_percent "`i'"
+}
 gen covid_percent=covid/baseline_t1dm*100
 
-label var monthbefore_t1dm_percent "% of people with COVID who had T1DM in 30 days before or anytime after to infection"
-label var incident_t1dm_percent "% of people with COVID who had T1DM after"
 label var covid_percent "% of people with T1DM who had COVID after T1DM diagnosis"
 
 *save dataset for use as table

@@ -2,7 +2,7 @@
 DO FILE NAME:			01_t1dm_cr_analysis_dataset
 PROJECT:				T1DM and COVID outcomes
 DATE: 					7th September 2020 
-AUTHOR:					Rohini Mathur adapted from ethnicity study										
+AUTHOR:					Rohini Mathur adapted from ethnicity study, subsequent edits (adding SUS data) by Kevin Wing									
 DESCRIPTION OF FILE:	program 01, data management for project  
 						reformat variables 
 						categorise variables
@@ -13,15 +13,13 @@ DATASETS CREATED: 		none
 OTHER OUTPUT: 			logfiles, printed to folder analysis/$logdir
 
 
-							
+				
 ==============================================================================*/
-
-import delimited `c(pwd)'/output/input.csv, clear
 
 * Open a log file
 cap log close
-log using "$Logdir/01_t1dm_cr_create_analysis_dataset.log", replace t
-
+log using 01_t1dm_cr_create_analysis_dataset.log, replace t
+import delimited `c(pwd)'/output/input.csv, clear
 
 di "STARTING safecount FROM IMPORT:"
 safecount
@@ -63,12 +61,24 @@ format indexdate %d
 
 /* CREATE VARIABLES===========================================================*/
 
-/* COVID EXPOSURE AND OUTCOME DEFINITIONS==================================================*/
+/* COVID EXPOSURE AND T1DM OUTCOME DEFINITIONS==================================================*/
 
-	
-ren primary_care_case			confirmed_date
-ren first_positive_test_date	positivetest_date
-ren type1_diabetes				t1dm_date
+*COVID	
+ren primary_care_case					confirmed_date
+ren first_tested_for_covid				tested_date
+ren first_positive_test_date			positivetest_date
+ren covid_admission_date			 	c19_hospitalised_date
+ren died_ons_covid_flag_any				coviddeath_date
+
+*T1DM
+ren type1_diabetes				t1dm_primarycare_date
+ren type2_diabetes				t2dm_primarycare_date
+ren ketoacidosis				keto_primarycare_date
+
+ren t1dm_admission_date			t1dm_hospitalised_date
+ren ketoacidosis_admission_date	keto_hospitalised_date
+	 
+*DEATH
 ren died_date_ons				death_date
 
 /* CONVERT STRINGS TO DATE FOR COVID EXPOSURE VARIABLES =============================*/
@@ -88,6 +98,7 @@ foreach i of global outcomes {
 		gen `i'=0
 		replace  `i'=1 if `i'_date < .
 		safetab `i'
+		label variable `i' "`i'"
 }
 
 
@@ -96,41 +107,78 @@ rename dereg_date dereg_dstr
 	gen dereg_date = date(dereg_dstr, "YMD")
 	drop dereg_dstr
 	format dereg_date %td 
+	
+gen dereg=0
+replace dereg=1 if dereg_date < .
+safetab dereg
 
 *identify covid cases
-gen covid_date=min(confirmed_date, positivetest_date)
+gen covid_date=min(confirmed_date, positivetest_date, c19_hospitalised_date)
 format covid_date %td
 
 gen covid=0
 replace covid=1 if covid_date!=.
 safetab covid
 
-*Prior T1DM: identify those with baseline t1dm (prior to covid) and incident t1dm (post covid)
+*identify t1dm cases
+gen t1dm_date=min(t1dm_primarycare_date, t1dm_hospitalised_date)
 
-tab t1dm 
+gen t1dm=0
+replace t1dm=1 if t1dm_date!=.
 
-gen baseline_t1dm=0
-replace baseline_t1dm=1 if t1dm_date<(covid_date-30)
+*identify keto cases
+gen keto_date=min(keto_primarycare_date, keto_hospitalised_date)
+gen keto=0
+replace keto=1 if keto_date!=.
 
-gen incident_t1dm=0
-replace incident_t1dm=1 if t1dm_date>=covid_date & t1dm_date!=.
+*identify either
+gen t1dm_keto_date=min(keto_primarycare_date, keto_hospitalised_date, t1dm_primarycare_date, t1dm_hospitalised_date)
+gen t1dm_keto=0
+replace t1dm_keto=1 if t1dm_keto_date!=.
 
-*identify people with T1DM in the 30 days before covid
-gen monthbefore_t1dm=0
-replace monthbefore_t1dm=1 if t1dm_date>=(covid_date-30) & t1dm_date!=.
 
-safetab t1dm
-safetab baseline_t1dm
-safetab incident_t1dm
-safetab monthbefore_t1dm
+local p "covid t1dm keto t1dm_keto"
+foreach i of local p {
+label define `i' 0"No `i'" 1"`i'"
+label values `i' `i'
+safetab `i'
+}
 
+
+*identify those with baseline t1dm/dka (prior to covid) and incident t1dm/dka (post covid)
+local p "t1dm keto t1dm_keto"
+foreach i of local p {
+gen baseline_`i'=0
+replace baseline_`i'=1 if `i'_date<(covid_date-30) & covid_date!=.
+
+gen incident_`i'=0
+replace incident_`i'=1 if `i'_date>=covid_date & `i'_date!=. & covid_date!=.
+
+*identify people with T1DM/dka in the 30 days before covid
+gen monthbefore_`i'=0
+replace monthbefore_`i'=1 if `i'_date>=(covid_date-30) & `i'_date!=. & covid_date!=.
+}
+
+local p "t1dm keto t1dm_keto"
+foreach i of local p {
+
+safetab `i'
+safetab baseline_`i'
+safetab incident_`i'
+safetab monthbefore_`i'
+}
 
 /* CENSORING */
 /* SET FU DATES===============================================================*/ 
 
-* Censoring dates for each outcome (last date outcome data available)
+* Censoring dates for each outcome (last date outcome data available) 
 *https://github.com/opensafely/rapid-reports/blob/master/notebooks/latest-dates.ipynb
-gen t1dm_censor_date = d("17/08/2020")
+
+*outcomes are t1dm and ketoacidosis- censoring should be at earliest of TPP or SUS end date
+gen t1dm_censor_date = d("31/08/2020")
+gen keto_censor_date = d("31/08/2020")
+gen t1dm_keto_censor_date = d("31/08/2020")
+
 format *censor_date %d
 sum *censor_date, format
 *******************************************************************************
@@ -170,16 +218,16 @@ safetab eth5, m
 * Ethnicity (16 category)
 replace ethnicity_16 = 17 if ethnicity_16==.
 label define ethnicity_16 									///
-						1 "British or Mixed British" 		///
+						1 "British" 		///
 						2 "Irish" 							///
 						3 "Other White" 					///
 						4 "White + Black Caribbean" 		///
 						5 "White + Black African"			///
 						6 "White + Asian" 					///
  						7 "Other mixed" 					///
-						8 "Indian or British Indian" 		///
-						9 "Pakistani or British Pakistani" 	///
-						10 "Bangladeshi or British Bangladeshi" ///
+						8 "Indian" 		///
+						9 "Pakistani" 	///
+						10 "Bangladeshi" ///
 						11 "Other Asian" 					///
 						12 "Caribbean" 						///
 						13 "African" 						///
@@ -248,8 +296,84 @@ label define imd 1 "1 least deprived" 2 "2" 3 "3" 4 "4" 5 "5 most deprived" .u "
 label values imd imd 
 safetab imd, m
 
+
+/**** Create survival times  ****/
+* For looping later, name must be stime_binary_outcome_name
+
+* Survival time = last followup date (first: deregistration date, end study, death, or that outcome)
+*Ventilation does not have a survival time because it is a yes/no flag
+foreach i of global outcomes3 {
+	gen stime_`i' = min(`i'_censor_date, death_date, `i'_date, dereg_date)
+}
+
+* If outcome occurs after censoring, set to zero
+foreach i of global outcomes3 {
+	replace `i'=0 if `i'_date>stime_`i'
+	tab `i'
+}
+
+* Format date variables
+format  stime* %td 
+
+/* LABEL VARIABLES============================================================*/
+*  Label variables you are intending to keep, drop the rest 
+
+
+* Demographics
+label var patient_id				"Patient ID"
+label var age 						"Age (years)"
+label var agegroup					"Grouped age"
+label var agecat					"3 catgories of age"
+label var sex 						"Sex"
+label var male 						"Male"
+label var imd 						"Index of Multiple Deprivation (IMD)"
+label var eth5						"Eth 5 categories"
+label var ethnicity_16				"Eth 16 categories"
+label var stp 						"Sustainability and Transformation Partnership"
+lab var region						"Region of England"
+
+/* Outcomes and follow-up
+label var indexdate					"Date of study start (Feb 1 2020)"
+foreach i of global outcomes {
+	label var `i'_censor_date		 "Date of admin censoring"
+}
+*/
+*Outcome dates
+foreach i of global outcomes {
+	label var `i'_date					"Failure date:  `i'"
+	d `i'_date
+}
+
+* binary outcome indicators
+foreach i of global outcomes {
+	lab var `i' 					"`i'"
+	safetab `i'
+}
+
+foreach i of global outcomes2 {
+	lab var `i' 					"`i'"
+	safetab `i'
+}
+
 sort patient_id
+
+
 save "$Tempdir/analysis_dataset.dta", replace
+
+****************************************************************
+*  Create outcome specific datasets for the whole population  *
+*****************************************************************
+
+
+foreach i of global outcomes3 {
+	use "$Tempdir/analysis_dataset.dta", clear
+	
+	drop if `i'_date <= indexdate 
+
+	stset stime_`i', fail(`i') 				///	
+	id(patient_id) enter(indexdate) origin(indexdate)
+	save "$Tempdir/analysis_dataset_STSET_`i'.dta", replace
+}	
 
 	
 * Close log file 

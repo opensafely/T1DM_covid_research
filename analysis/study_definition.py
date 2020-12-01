@@ -31,9 +31,8 @@ study = StudyDefinition(
 
     dereg_date=patients.date_deregistered_from_all_supported_practices(
         on_or_before="2020-12-01", 
-        date_format="YYYY-MM",
+        date_format="YYYY-MM-DD",
         return_expectations={"date": {"earliest": "2020-02-01"}},
-
     ),
 
     # PRIMARY CARE COVID EXPOSURE
@@ -86,7 +85,7 @@ study = StudyDefinition(
         on_or_after="2020-02-01",
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD",  
-        return_expectations={"date": {"earliest": "2020-03-01"}, "incidence" : 0.95},
+        return_expectations={"date": {"earliest": "2020-03-01"}, "incidence" : 0.25},
    ),
     covid_admission_primary_diagnosis=patients.admitted_to_hospital(
         returning="primary_diagnosis",
@@ -94,7 +93,7 @@ study = StudyDefinition(
         on_or_after="2020-02-01",
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD", 
-        return_expectations={"date": {"earliest": "2020-03-01"},"incidence" : 0.95,
+        return_expectations={"date": {"earliest": "2020-03-01"},"incidence" : 0.25,
             "category": {"ratios": {"U071":0.5, "U072":0.5}},
         },
     ),
@@ -143,6 +142,13 @@ study = StudyDefinition(
     #DIABETES OUTCOME PRIMARY CARE
     type1_diabetes=patients.with_these_clinical_events(
         diabetes_t1_codes,
+        returning="date",
+        find_first_match_in_period=True,
+        date_format="YYYY-MM-DD",
+        return_expectations={"rate" : "exponential_increase"},
+    ),
+    ketoacidosis=patients.with_these_clinical_events(
+        diabetic_ketoacidosis_codes,
         returning="date",
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
@@ -218,28 +224,27 @@ study = StudyDefinition(
             returning="number_of_matches_in_period",
         ),
 
-    #DIABETES OUTCOME PRIMARY CARE
+     ),   
+
+    #DIABETES OUTCOME SECONDARY CARE
     t1dm_admission_date=patients.admitted_to_hospital(
         returning= "date_admitted" ,  # defaults to "binary_flag"
-        with_these_diagnoses=covid_codelist,  # optional
+        with_these_diagnoses=diabetes_t1_codes_secondary,  # optional
         on_or_after="2020-02-01",
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD",  
         return_expectations={"date": {"earliest": "2020-03-01"}, "incidence" : 0.95},
    ),
-    t1dm_admission_primary_diagnosis=patients.admitted_to_hospital(
-        returning="primary_diagnosis",
-        with_these_diagnoses=covid_codelist,  # optional
+    ketoacidosis_admission_date=patients.admitted_to_hospital(
+        returning= "date_admitted" ,  # defaults to "binary_flag"
+        with_these_diagnoses=diabetic_ketoacidosis_codes_secondary,  # optional
         on_or_after="2020-02-01",
         find_first_match_in_period=True,  
-        date_format="YYYY-MM-DD", 
-        return_expectations={"date": {"earliest": "2020-03-01"},"incidence" : 0.95,
-            "category": {"ratios": {"U071":0.5, "U072":0.5}},
-        },
-    ),
+        date_format="YYYY-MM-DD",  
+        return_expectations={"date": {"earliest": "2020-03-01"}, "incidence" : 0.95},
+   ),
 
 
-    ),
 
 
     ## DEMOGRAPHIC COVARIATES
