@@ -4,20 +4,20 @@ expectations:
   population_size: 10000
 
 actions:
-  generate_cohorts:
-    run: cohortextractor:latest generate_cohort --study-definition study_definition
+  generate_cases:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_covid
     outputs:
       highly_sensitive:
         cohort: output/input.csv
 
-  generate_cohort2019:
-    run: cohortextractor:latest generate_cohort --study-definition study_definition_2019
+  generate_controls2019:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_control_2019
     outputs:
       highly_sensitive:
         cohort: output/input_2019.csv
         
-  generate_flowchartdata:
-    run: cohortextractor:latest generate_cohort --study-definition study_definition_flow_chart
+  generate_controls2020:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_control_2020
     outputs:
       highly_sensitive:
         cohort: output/input_flow_chart.csv
