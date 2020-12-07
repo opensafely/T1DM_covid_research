@@ -3,7 +3,7 @@
 *
 *	Do-file:		000_cr_matches.do
 *
-*	Programmed by:	John (based on Krishnan) 
+*	Programmed by:	Rohini (based on John and Krishnan) 
 *
 *	Data used:		None
 *
@@ -19,13 +19,11 @@
 ********************************************************************************
 * Open a log file
 capture log close
-log using "output/101_cr_peumonia_matches", text replace
+log using "output/101_cr_2020_matches", text replace
 
 set seed 12938
 
-foreach outcome in primary {
-
-use  "data/cohort_`outcome'_covid_hosp", replace 
+use  "$Tempdir/cohort_controls_2020.dta", replace 
 keep patient_id indexdate indexMonth practice_id exposed age gender stp
 
 * Load pneumonia patients in 2019 

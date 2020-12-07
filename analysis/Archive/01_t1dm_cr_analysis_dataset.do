@@ -19,7 +19,7 @@ OTHER OUTPUT: 			logfiles, printed to folder analysis/$logdir
 * Open a log file
 cap log close
 log using 01_t1dm_cr_create_analysis_dataset.log, replace t
-import delimited `c(pwd)'/output/input.csv, clear
+import delimited `c(pwd)'/output/input_covid.csv, clear
 
 di "STARTING safecount FROM IMPORT:"
 safecount
@@ -82,9 +82,9 @@ ren ketoacidosis_admission_date	keto_hospitalised_date
 ren died_date_ons				death_date
 
 /* CONVERT STRINGS TO DATE FOR COVID EXPOSURE VARIABLES =============================*/
-* Recode to dates from the strings 
 
-foreach var of global outcomes {
+* Recode to dates from the strings 
+foreach var of global exposures {
 	confirm string variable `var'_date
 	rename `var'_date `var'_dstr
 	gen `var'_date = date(`var'_dstr, "YMD")
@@ -93,14 +93,13 @@ foreach var of global outcomes {
 
 }
 
-* Binary indicators for covid
-foreach i of global outcomes {
+* Binary indicators for exposures and outcomes
+foreach i of global exposures {
 		gen `i'=0
 		replace  `i'=1 if `i'_date < .
 		safetab `i'
 		label variable `i' "`i'"
 }
-
 
 *date of deregistration
 rename dereg_date dereg_dstr

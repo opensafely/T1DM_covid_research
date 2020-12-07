@@ -1,3 +1,23 @@
+********************************************************************************
+*
+*	Do-file:		model.do
+*
+*	Programmed by:	Rohini & Kevin
+*
+*	Data used:		output/input_covid.csv
+
+*	Data created:	a number of analysis datasets
+*
+*	Other output:	-
+*
+********************************************************************************
+*
+*	Purpose:		This do-file performs the data creation and preparation 
+*					do-files. 
+*  
+********************************************************************************
+
+*start with cases of COVID-19
 import delimited "`c(pwd)'/output/input_covid.csv"
 
 ********** INSERT DATA END DATE ************
@@ -41,18 +61,18 @@ global logdir     "$Logdir"
 global tempdir    "$Tempdir"
 
 
-*will add death to the global when we do survival analysis for censoring purposes
-global group "covid_cases"
+global allvar "gp_confirmed gp_positive sgss_positive c19_hospitalised gp_t1dm gp_t2dm t1dm_hospitalised  gp_ketoacidosis  keto_hospitalised death"
+global exposures "gp_confirmed gp_positive sgss_positive c19_hospitalised"
+global outcomes "gp_t1dm  gp_t2dm t1dm_hospitalised  gp_ketoacidosis  keto_hospitalised death"
 
-global outcomes "confirmed tested positivetest c19_hospitalised t1dm_primarycare t1dm_hospitalised t2dm_primarycare keto_primarycare  keto_hospitalised death"
-global  outcomes2 "t1dm keto t1dm_keto baseline_t1dm incident_t1dm monthbefore_t1dm baseline_keto incident_keto monthbefore_t1dm_keto  baseline_t1dm_keto incident_t1dm_keto monthbefore_keto"
-global outcomes3 "t1dm keto t1dm_keto"
 /**********************
 Data cleaning
 **********************/
 
-*Create analysis dataset
-do "$Dodir/01_t1dm_cr_analysis_dataset.do"
+*Create analysis datasetsfor cases and controls
+do "$Dodir/000_t1dm_cr_analysis_dataset_covid.do"
+do "$Dodir/000_t1dm_cr_analysis_dataset_controls_2019.do"
+do "$Dodir/000_t1dm_cr_analysis_dataset_controls_2020.do"
 
 *Feasibility counts
 do "$Dodir/02_t1dm_an_feasibility_counts.do"

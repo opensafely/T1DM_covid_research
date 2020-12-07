@@ -12,14 +12,25 @@
 *
 ********************************************************************************
 *
-*	Purpose:		T
+*	Purpose:		To create dataset for cases with COVID-19
 *
 *	Note:			
 ********************************************************************************
 
+*start with cases of COVID-19
+import delimited "`c(pwd)'/output/input_control_2020.csv", clear
+
+********** INSERT DATA END DATE ************
+global dataEndDate td(01dec2020)
+
 
 di "STARTING COUNT FROM IMPORT:"
 noi safecount
+
+****************************************
+*   POPULATION FLOWCHART
+****************************************
+safecount
 
 * Age: Exclude children and implausibly old people
 qui summ age // Should be no missing ages
@@ -33,15 +44,18 @@ assert inrange(age, 18, 105)
 assert age<.
 noi di "DROPPING AGE<105:" 
 drop if age>105
+safecount
 
 * Sex: Exclude categories other than M and F
 assert inlist(sex, "M", "F", "I", "U")
 noi di "DROPPING GENDER NOT M/F:" 
 drop if inlist(sex, "I", "U")
+safecount
 
 * STP
 noi di "DROPPING IF STP MISSING:"
 drop if stp==""
+safecount
 
 * IMD 
 noi di "DROPPING IF NO IMD" 
@@ -52,94 +66,49 @@ if _rc==0 {
 else {
 	drop if imd>=.
 }
+safecount
 
-* Hospitalised with covid
 
-if "$group" == "covid_hosp" {
-gen hospitalised_covid_date = date(hospitalised_covid, "YMD")
-format hospitalised_covid_date %td
+/* COVID EXPOSURE AND T1DM OUTCOME DEFINITIONS==================================================*/
 
-drop if hospitalised_covid_date ==.
-drop hospitalised_covid
+*COVID	
+ren gp_covid_code_date			gp_confirmed_date
+ren gp_positivetest_date		gp_positive_date
+ren sgss_positive_date			sgss_positive_date
+ren covid_admission_date		c19_hospitalised_date
+ren died_ons_covid_flag_any		coviddeath_date
 
-gen discharged_covid_date = date(discharged_covid, "YMD")
-format discharged_covid_date %td
+*T1DM
+ren t1dm_admission_date			t1dm_hospitalised_date
+ren ketoacidosis_admission_date	keto_hospitalised_date
+	 
+*DEATH
+ren died_ons_date				death_date
 
-drop if discharged_covid_date ==.
-drop if discharged_covid_date > $dataEndDate
-drop discharged_covid
+/* CONVERT STRINGS TO DATE FOR COVID EXPOSURE VARIABLES =============================*/
+* Recode to dates from the strings 
 
-* for matching 
-gen exposed = 1
-gen indexdate= discharged_covid_date
-format indexdate %td
-gen indexMonth = month(discharged_covid_date)
+foreach var of global allvar {
+	confirm string variable `var'_date
+	rename `var'_date `var'_dstr
+	gen `var'_date = date(`var'_dstr, "YMD")
+	drop `var'_dstr
+	format `var'_date %td 
 
-gen flag = "covid_hosp"
-}
-
-if "$group" == "pneumonia_hosp" {
-gen hospitalised_pneumonia_date = date(hospitalised_pneumonia, "YMD")
-format hospitalised_pneumonia_date %td
-
-drop if hospitalised_pneumonia_date ==.
-drop hospitalised_pneumonia
-
-gen discharged_pneumonia_date = date(discharged_pneumonia, "YMD")
-format discharged_pneumonia_date %td
-
-drop if discharged_pneumonia_date ==.
-drop discharged_pneumonia
-
-drop if discharged_pneumonia_date > $dataEndDate - 365.25
-
-gen indexdate = discharged_pneumonia_date
-format indexdate %td
-
-gen indexMonth = month(discharged_pneumonia_date)
-gen exposed = 0 
-
-gen flag = "pneumonia_hosp"
-
-}
-
-if "$group" == "control_2019" {
-
-* for matching (for 2019 comparison)
-gen exposed = 0 
-
-gen flag = "control_2019"
-}
-
-if "$group" == "control_2020" {
-
-* for matching (for 2019 comparison)
-gen exposed = 0 
-
-gen flag = "control_2020"
 }
 
 ******************************
 *  Convert strings to dates  *
 ******************************
-
-* To be added: dates related to outcomes
-foreach var of varlist dvt_gp 				///
-					   pe_gp 				///
-					   other_vte_gp 		///
-					   dvt_hospital			///
-					   pe_hospital 			///
-					   other_vte_hospital 	///
-					   stroke_gp 			///
-					   stroke_hospital  	///
-					   died_date_ons 		///
-					   bmi_date_measured 	///
-					   hypertension 		/// 
-					   diabetes 	{
+ren bmi_date_measured bmi_date
+foreach var of varlist hypertension_date	///
+					   gp_unknowndm_date	///
+					   bmi_date			 	///
+					   sgss_tested			{
+	di "`var'"
 	capture confirm string variable `var'
 	if _rc!=0 {
 		assert `var'==.
-		rename `var' `var'_date
 	}
 	else {
 		rename `var' `var'_dstr
@@ -150,11 +119,73 @@ foreach var of varlist dvt_gp 				///
 	format `var'_date %td
 }
 
+* Binary indicators for exposures and outcomes
+foreach i of global allvar {
+		gen `i'=0
+		replace  `i'=1 if `i'_date < .
+		safetab `i'
+		label variable `i' "`i'"
+}
+*date of deregistration
+rename dereg_date dereg_dstr
+	gen dereg_date = date(dereg_dstr, "YMD")
+	drop dereg_dstr
+	format dereg_date %td 
+	
+gen dereg=0
+replace dereg=1 if dereg_date < .
+safetab dereg
 
-/* BMI */
 
-* Set implausible BMIs to missing:
-replace bmi = . if !inrange(bmi, 15, 50)
+**********************
+* Exposure
+*Diagnosed with covid in primary care, SGSS, or hospital - for controls this is a censoring event, their follow-up ends if they develop the exposure of interest
+**********************
+
+gen covid_date=min(gp_confirmed_date, gp_positive_date,sgss_positive_date, c19_hospitalised_date)
+format covid_date %td
+
+* for matching - no index date as this will be determined by the C19 cases
+gen covid_exposed = 0
+gen flag = "controls_2020"
+
+**************
+*  Outcomes  *
+* T1DM or Ketoacidosis, T2DM as a control outcome
+**************
+
+/*   Outcomes   */
+*identify t1dm cases
+gen t1dm_date=min(gp_t1dm_date, t1dm_hospitalised_date)
+
+gen t1dm=0
+replace t1dm=1 if t1dm_date!=.
+
+*identify keto cases
+gen keto_date=min(gp_ketoacidosis_date, keto_hospitalised_date)
+gen keto=0
+replace keto=1 if keto_date!=.
+
+*identify either
+gen t1dm_keto_date=min(t1dm_date, keto_date)
+gen t1dm_keto=0
+replace t1dm_keto=1 if t1dm_keto_date!=.
+
+*identify t2dm cases
+ren gp_t2dm* t2dm*
+
+local p "covid_exposed t1dm keto t1dm_keto t2dm"
+foreach i of local p {
+label define `i' 0"No `i'" 1"`i'"
+label values `i' `i'
+safetab `i'
+}
+
+
+* Note: There may be deaths recorded after end of our study 
+* Set these to missing
+replace death_date = . if death_date>$dataEndDate
+format *date %td
 
 **********************
 *  Recode variables  *
@@ -173,6 +204,11 @@ label define genderLab 1 "male" 0 "female"
 label values gender genderLab
 label var gender "gender = 0 F, 1 M"
 
+
+/* BMI */
+
+* Set implausible BMIs to missing:
+replace bmi = . if !inrange(bmi, 15, 50)
 
 * Smoking
 label define smoke 1 "Never" 2 "Former" 3 "Current" .u "Unknown (.u)"
@@ -321,15 +357,6 @@ label define imd 	1 "1 least deprived"	///
 label values imd imd 
 
 
-
-
-
-
-***************************
-*  Grouped comorbidities  *
-***************************
-
-
 	
 ****************************************
 *   Hba1c:  Level of diabetic control  *
@@ -342,17 +369,17 @@ label define hba1ccat	0 "<6.5%"  		///
 						4">=9"
 
 * Set zero or negative to missing
-	replace hba1c_percentage_1   = . if hba1c_percentage_1   <= 0
-	replace hba1c_mmol_per_mol_1 = . if hba1c_mmol_per_mol_1 <= 0
+	replace hba1c_percentage   = . if hba1c_percentage   <= 0
+	replace hba1c_mmol_per_mol = . if hba1c_mmol_per_mol <= 0
 
 
 	/* Express  HbA1c as percentage  */ 
 
 	* Express all values as perecentage 
-	noi summ hba1c_percentage_1 hba1c_mmol_per_mol_1
-	gen 	hba1c_pct = hba1c_percentage_1 
-	replace hba1c_pct = (hba1c_mmol_per_mol_1/10.929) + 2.15  ///
-				if hba1c_mmol_per_mol_1<. 
+	noi summ hba1c_percentage hba1c_mmol_per_mol
+	gen 	hba1c_pct = hba1c_percentage 
+	replace hba1c_pct = (hba1c_mmol_per_mol/10.929) + 2.15  ///
+				if hba1c_mmol_per_mol<. 
 
 	* Valid % range between 0-20  
 	replace hba1c_pct = . if !inrange(hba1c_pct, 0, 20) 
@@ -362,105 +389,21 @@ label define hba1ccat	0 "<6.5%"  		///
 	/* Categorise hba1c and diabetes  */
 
 	* Group hba1c
-	gen 	hba1ccat_1 = 0 if hba1c_pct <  6.5
-	replace hba1ccat_1 = 1 if hba1c_pct >= 6.5  & hba1c_pct < 7.5
-	replace hba1ccat_1 = 2 if hba1c_pct >= 7.5  & hba1c_pct < 8
-	replace hba1ccat_1 = 3 if hba1c_pct >= 8    & hba1c_pct < 9
-	replace hba1ccat_1 = 4 if hba1c_pct >= 9    & hba1c_pct !=.
-	label values hba1ccat_1 hba1ccat
-	
-	* Delete unneeded variables
-	drop hba1c_pct hba1c_percentage_1 hba1c_mmol_per_mol_1 
-	
+	gen 	hba1ccat = 0 if hba1c_pct <  6.5
+	replace hba1ccat = 1 if hba1c_pct >= 6.5  & hba1c_pct < 7.5
+	replace hba1ccat = 2 if hba1c_pct >= 7.5  & hba1c_pct < 8
+	replace hba1ccat = 3 if hba1c_pct >= 8    & hba1c_pct < 9
+	replace hba1ccat = 4 if hba1c_pct >= 9    & hba1c_pct !=.
+	label values hba1ccat hba1ccat
 
 **************
-*  Outcomes  *
+*DROP THOSE WITH OUTCOME BEFORE EXPOSURE (ANY DIABETES)
 **************
-/*   Exclusion events */ 
-if "$group" == "covid_hosp" {
-gen exclude_primary = cond(stroke_gp_date <= discharged_covid_date | 		/// 
-						   stroke_hospital_date <= discharged_covid_date | ///
-						   dvt_gp_date <= discharged_covid_date | ///
-						   dvt_hospital_date <= discharged_covid_date | ///
-						   pe_gp_date <= discharged_covid_date | ///
-						   pe_hospital_date <= discharged_covid_date | ///
-						   died_date_ons_date <=  discharged_covid_date | ///
-						   previous_stroke_gp == 1 | ///
-						   previous_stroke_hospital == 1 | ///
-						   previous_vte_gp == 1 | ///
-						   previous_vte_hospital == 1, 1, 0  )
+drop if t1dm_keto_date < covid_date 
+drop if t2dm_date < covid_date
+safecount	
 
-gen exclude_secondary  = cond(stroke_hospital_date <= discharged_covid_date | ///
-						   dvt_hospital_date <= discharged_covid_date | ///
-						   pe_hospital_date <= discharged_covid_date | ///
-						   died_date_ons_date <=  discharged_covid_date | ///
-						   previous_stroke_hospital == 1 | ///
-						   previous_vte_hospital == 1  , 1, 0  )
-}
-
-if "$group" == "pneumonia_hosp" {
-gen exclude_primary = cond(stroke_gp_date <= discharged_pneumonia_date | 		/// 
-						   stroke_hospital_date <= discharged_pneumonia_date | ///
-						   dvt_gp_date <= discharged_pneumonia_date | ///
-						   dvt_hospital_date <= discharged_pneumonia_date | ///
-						   pe_gp_date <= discharged_pneumonia_date | ///
-						   pe_hospital_date <= discharged_pneumonia_date | ///
-						   died_date_ons_date <=  discharged_pneumonia_date | ///
-						   previous_stroke_gp == 1 | ///
-						   previous_stroke_hospital == 1 | ///
-						   previous_vte_gp == 1 | ///
-						   previous_vte_hospital == 1, 1, 0  )
-
-gen exclude_secondary  = cond(stroke_hospital_date <= discharged_pneumonia_date | ///
-						   dvt_hospital_date <= discharged_pneumonia_date | ///
-						   pe_hospital_date <= discharged_pneumonia_date | ///
-						   died_date_ons_date <=  discharged_pneumonia_date | ///
-						   previous_stroke_hospital == 1 | ///
-						   previous_vte_hospital == 1  , 1, 0  )
-}
-
-
-* Maybe move this all to after matching ...but can exclude all patients with a history of the event as of the start date to  avoid them being matched (likely to reduce the pool of matches and speed up matching )
-
-if "$group" == "control_2019" {
-gen exclude_primary = cond(previous_stroke_gp == 1 | ///
-						   previous_stroke_hospital == 1 | ///
-						   previous_vte_gp == 1 | ///
-						   previous_vte_hospital == 1 , 1, 0  )
-
-gen exclude_secondary  = cond(previous_stroke_hospital == 1 | ///
-						   previous_vte_hospital == 1  , 1, 0  )
-	
-}
-
-if "$group" == "control_2020" {
-gen exclude_primary = cond(previous_stroke_gp == 1 | ///
-						   previous_stroke_hospital == 1 | ///
-						   previous_vte_gp == 1 | ///
-						   previous_vte_hospital == 1 , 1, 0  )
-
-gen exclude_secondary  = cond(previous_stroke_hospital == 1 | ///
-						   previous_vte_hospital == 1  , 1, 0  )
-	
-}
-
-/*   Outcomes   */
-
-* Note: There may be deaths recorded after end of our study (08 Oct)
-* Set these to missing
-replace died_date_ons_date = . if died_date_ons_date>td(08oct2020)
-
-preserve 
-keep if exclude_primary == 0
-drop exclude_primary exclude_secondary
-save "data/cohort_primary_$group", replace 
-restore
-
-preserve 
-keep if exclude_secondary == 0
-drop exclude_secondary exclude_primary
-save "data/cohort_secondary_$group", replace 
-restore
+save "$Tempdir/cohort_controls_2020.dta", replace 
 
 
 

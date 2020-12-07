@@ -29,63 +29,63 @@ def common_variable_define(start_date):
     sgss_tested_date=patients.with_test_result_in_sgss(
         pathogen="SARS-CoV-2",
         test_result="any",
-        on_or_after="2020-02-01",
+        on_or_after="start_date",
         find_first_match_in_period=True,
         returning="date",
         date_format="YYYY-MM-DD",
-        return_expectations={"date": {"earliest" : "2020-02-01"},
+        return_expectations={"date": {"earliest" : "start_date"},
         "rate" : "exponential_increase"},
     ),
     sgss_positive_date=patients.with_test_result_in_sgss(
         pathogen="SARS-CoV-2",
         test_result="positive",
-        on_or_after="2020-02-01",
+        on_or_after="start_date",
         find_first_match_in_period=True,
         returning="date",
         date_format="YYYY-MM-DD",
-        return_expectations={"date": {"earliest" : "2020-02-01"},
+        return_expectations={"date": {"earliest" : "start_date"},
         "rate" : "exponential_increase"},
     ),
 
     covid_admission_date=patients.admitted_to_hospital(
         returning= "date_admitted" ,  # defaults to "binary_flag"
         with_these_diagnoses=covid_codelist,  # optional
-        on_or_after="2020-02-01",
+        on_or_after="start_date",
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD",  
-        return_expectations={"date": {"earliest": "2020-03-01"}, "incidence" : 0.25},
+        return_expectations={"date": {"earliest": "start_date"}, "incidence" : 0.25},
    ),
     covid_admission_primary_diagnosis=patients.admitted_to_hospital(
         returning="primary_diagnosis",
         with_these_diagnoses=covid_codelist,  # optional
-        on_or_after="2020-02-01",
+        on_or_after="start_date",
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD", 
-        return_expectations={"date": {"earliest": "2020-03-01"},"incidence" : 0.25,
+        return_expectations={"date": {"earliest": "start_date"},"incidence" : 0.25,
             "category": {"ratios": {"U071":0.5, "U072":0.5}},
         },
     ),
 
     died_ons_covid_flag_any=patients.with_these_codes_on_death_certificate(
         covid_codelist,
-        on_or_after="2020-02-01",
+        on_or_after="start_date",
         match_only_underlying_cause=False,
-        return_expectations={"date": {"earliest" : "2020-02-01"},
+        return_expectations={"date": {"earliest" : "start_date"},
         "rate" : "exponential_increase"},
     ),
     died_ons_date=patients.died_from_any_cause(
-        on_or_after="2020-02-01",
+        on_or_after="start_date",
         returning="date_of_death",
         include_month=True,
         include_day=True,
-        return_expectations={"date": {"earliest" : "2020-02-01"},
+        return_expectations={"date": {"earliest" : "start_date"},
         "rate" : "exponential_increase"},
     ),
 
     dereg_date=patients.date_deregistered_from_all_supported_practices(
         on_or_before="2020-12-01", 
         date_format="YYYY-MM-DD",
-        return_expectations={"date": {"earliest": "2020-02-01"}},
+        return_expectations={"date": {"earliest": "start_date"}},
     ),
 
     #DIABETES OUTCOME PRIMARY CARE
@@ -94,28 +94,32 @@ def common_variable_define(start_date):
         returning="date",
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
-        return_expectations={"rate" : "exponential_increase"},
+        return_expectations={"rate" : "exponential_increase",
+        "incidence": 0.01,},
     ),
     gp_ketoacidosis_date=patients.with_these_clinical_events(
         diabetic_ketoacidosis_codes,
         returning="date",
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
-        return_expectations={"rate" : "exponential_increase"},
+        return_expectations={"rate" : "exponential_increase",
+        "incidence": 0.01,},
     ),
     gp_t2dm_date=patients.with_these_clinical_events(
         diabetes_t2_codes,
         returning="date",
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
-        return_expectations={"rate" : "exponential_increase"},
+        return_expectations={"rate" : "exponential_increase",
+        "incidence": 0.2,},
     ),
     gp_unknowndm_date=patients.with_these_clinical_events(
         diabetes_unknown_codes,
         returning="date",
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
-        return_expectations={"rate" : "exponential_increase"},
+        return_expectations={"rate" : "exponential_increase",
+        "incidence": 0.05,},
     ),
      diabetes_type=patients.categorised_as(
         {
@@ -172,23 +176,23 @@ def common_variable_define(start_date):
     t1dm_admission_date=patients.admitted_to_hospital(
         returning= "date_admitted" ,  # defaults to "binary_flag"
         with_these_diagnoses=diabetes_t1_codes_secondary,  # optional
-        on_or_after="2020-02-01",
+        on_or_after="start_date",
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD",  
-        return_expectations={"date": {"earliest": "2020-03-01"}, "incidence" : 0.95},
+        return_expectations={"date": {"earliest": "start_date"}, "incidence" : 0.15},
    ),
     ketoacidosis_admission_date=patients.admitted_to_hospital(
         returning= "date_admitted" ,  # defaults to "binary_flag"
         with_these_diagnoses=diabetic_ketoacidosis_codes_secondary,  # optional
-        on_or_after="2020-02-01",
+        on_or_after="start_date",
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD",  
-        return_expectations={"date": {"earliest": "2020-03-01"}, "incidence" : 0.95},
+        return_expectations={"date": {"earliest": "start_date"}, "incidence" : 0.15},
    ),
    ## DEMOGRAPHIC COVARIATES
     # AGE
     age=patients.age_as_of(
-        "2020-02-01",
+        "start_date",
         return_expectations={
             "rate": "universal",
             "int": {"distribution": "population_ages"},
@@ -205,7 +209,7 @@ def common_variable_define(start_date):
 
     # DEPRIVIATION
     imd=patients.address_as_of(
-        "2020-02-01",
+        "start_date",
         returning="index_of_multiple_deprivation",
         round_to_nearest=100,
         return_expectations={
@@ -295,27 +299,26 @@ def common_variable_define(start_date):
                 between=[days_before(start_date, 548), start_date],
             ),
         ),
-        hypertension=patients.with_these_clinical_events(
+        hypertension_date=patients.with_these_clinical_events(
             hypertension_codes, return_first_date_in_period=True, include_month=True,
         ),
-        
-        hba1c_mmol_per_mol_1=patients.with_these_clinical_events(
+        hba1c_mmol_per_mol=patients.with_these_clinical_events(
             hba1c_new_codes,
             find_last_match_in_period=True,
             between=[days_before(start_date, 730), start_date],
             returning="numeric_value",
-            include_date_of_match=False,
+            include_date_of_match=True,
             return_expectations={
                 "float": {"distribution": "normal", "mean": 40.0, "stddev": 20},
                 "incidence": 0.95,
             },
         ),
-        hba1c_percentage_1=patients.with_these_clinical_events(
+        hba1c_percentage=patients.with_these_clinical_events(
             hba1c_old_codes,
             find_last_match_in_period=True,
             between=[days_before(start_date, 730), start_date],
             returning="numeric_value",
-            include_date_of_match=False,
+            include_date_of_match=True,
             return_expectations={
                 "float": {"distribution": "normal", "mean": 5, "stddev": 2},
                 "incidence": 0.95,
