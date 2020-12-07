@@ -1,4 +1,11 @@
-import delimited `c(pwd)'/output/input.csv, clear
+import delimited "`c(pwd)'/output/input_covid.csv"
+
+********** INSERT DATA END DATE ************
+global dataEndDate td(01dec2020)
+
+set more off
+cd  "`c(pwd)'"
+adopath + "`c(pwd)'/analysis/ado"
 
 *set filepaths
 global Projectdir `c(pwd)'
@@ -35,6 +42,7 @@ global tempdir    "$Tempdir"
 
 
 *will add death to the global when we do survival analysis for censoring purposes
+global group "covid_cases"
 
 global outcomes "confirmed tested positivetest c19_hospitalised t1dm_primarycare t1dm_hospitalised t2dm_primarycare keto_primarycare  keto_hospitalised death"
 global  outcomes2 "t1dm keto t1dm_keto baseline_t1dm incident_t1dm monthbefore_t1dm baseline_keto incident_keto monthbefore_t1dm_keto  baseline_t1dm_keto incident_t1dm_keto monthbefore_keto"
