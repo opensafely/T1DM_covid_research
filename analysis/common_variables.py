@@ -82,6 +82,11 @@ def common_variable_define(start_date):
         "rate" : "exponential_increase"},
     ),
 
+    dereg_date=patients.date_deregistered_from_all_supported_practices(
+        on_or_before="2020-12-01", 
+        date_format="YYYY-MM-DD",
+        return_expectations={"date": {"earliest": "2020-02-01"}},
+    ),
 
     #DIABETES OUTCOME PRIMARY CARE
     gp_t1dm_date=patients.with_these_clinical_events(
