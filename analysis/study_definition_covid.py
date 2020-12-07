@@ -17,7 +17,7 @@ study = StudyDefinition(
         AND (age >=18 AND age <= 110)
         AND (sex = "M" OR sex = "F")
         AND imd > 0
-        AND (gp_covid_code_date = "True" OR gp_positivetest_date = "True" OR sgss_positive_date = "True")
+        AND (gp_covid_code_date = "True" OR gp_positivetest_date = "True" OR sgss_positive_date = "True" OR covid_admission_date = "True")
         """,
         has_follow_up=patients.registered_with_one_practice_between(
             "2019-02-01", "2020-02-01"
