@@ -4,27 +4,34 @@ expectations:
   population_size: 10000
 
 actions:
+
+  generate_commonvariables:
+    run: cohortextractor:latest generate_cohort --study-definition common_variables
+    outputs:
+        highly_sensitive:
+          cohort: output/input_commonvariables.csv
+
   generate_cases:
     run: cohortextractor:latest generate_cohort --study-definition study_definition_covid
     outputs:
       highly_sensitive:
-        cohort: output/input.csv
+        cohort: output/input_cases.csv
 
   generate_controls2019:
     run: cohortextractor:latest generate_cohort --study-definition study_definition_control_2019
     outputs:
       highly_sensitive:
-        cohort: output/input_2019.csv
+        cohort: output/input_controls2019.csv
         
   generate_controls2020:
     run: cohortextractor:latest generate_cohort --study-definition study_definition_control_2020
     outputs:
       highly_sensitive:
-        cohort: output/input_flow_chart.csv
+        cohort: output/input_controls2020.csv
 
-  crmain:
-    run: stata-mp:latest analysis/cr_create_analysis_dataset.do
-    needs: [generate_cohorts]
+  cr_covariates_simple:
+    run: stata-mp:latest analysis/000_cr_define_covariates_simple_rates.do
+    needs: [generate_cases]
     outputs:
       highly_sensitive:
         data: analysis/cr_create_analysis_dataset.dta
@@ -32,7 +39,7 @@ actions:
       moderately_sensitive:
         log: analysis/output/cr_create_analysis_dataset.log
   
-  cr2019:
+  cr_covariates:
     run: stata-mp:latest analysis/cr_create_analysis_dataset_2019.do
     needs: [generate_cohort2019]
     outputs:
