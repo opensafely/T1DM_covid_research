@@ -1,8 +1,8 @@
 ********************************************************************************
 *
-*	Do-file:		000_cr_define_covariates.do
+*	Do-file:		000_cr_define_covariates_simple_rates.do
 *
-*	Programmed by:	Alex & John (Based on Fizz & Krishnan)
+*	Programmed by:	Rohini & Kevin (based on Alex & John)
 *
 *	Data used:		None
 *

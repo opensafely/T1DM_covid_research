@@ -10,7 +10,18 @@ def days_before(s, days):
 
 
 def common_variable_define(
+    start_jan,
+    prev_nov,
+    prev_dec,
     start_date,
+    start_mar,
+    start_apr,
+    start_may,
+    start_jun,
+    start_jul,
+    start_aug,
+    start_sep,
+    start_oct,
     end_date,
 ):
     
@@ -74,7 +85,7 @@ def common_variable_define(
                 },
             },
         ),
- 
+###
     gp_covid_code_date=patients.with_these_clinical_events(
         covid_primary_care_code,        
             return_first_date_in_period=True,
@@ -103,8 +114,7 @@ def common_variable_define(
     sgss_positive_date=patients.with_test_result_in_sgss(
         pathogen="SARS-CoV-2",
         test_result="positive",
-        on_or_after=start_date
-,
+        on_or_after=start_date,
         find_first_match_in_period=True,
         returning="date",
         date_format="YYYY-MM-DD",
@@ -115,8 +125,7 @@ def common_variable_define(
     covid_admission_date=patients.admitted_to_hospital(
         returning= "date_admitted" ,  # defaults to "binary_flag"
         with_these_diagnoses=covid_codelist,  # optional
-        on_or_after=start_date
-,
+        on_or_after=start_date,
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD",  
         return_expectations={"date": {"earliest": start_date}, "incidence" : 0.25},
@@ -132,6 +141,7 @@ def common_variable_define(
             "category": {"ratios": {"U071":0.5, "U072":0.5}},
         },
     ),
+    
     pneumonia_admission_date=patients.admitted_to_hospital(
         returning= "date_admitted" ,  # defaults to "binary_flag"
         with_these_diagnoses=pneumonia_codelist,  # optional
@@ -157,7 +167,7 @@ def common_variable_define(
         find_first_match_in_period=True,
         return_expectations={"date": {"earliest": start_date}},
     ),
-
+###
     died_ons_covid_flag_any=patients.with_these_codes_on_death_certificate(
         covid_codelist,
         on_or_after=start_date,
