@@ -71,8 +71,8 @@ Data cleaning
 
 *Create analysis datasetsfor cases and controls
 do "$Dodir/000_t1dm_cr_analysis_dataset_covid.do"
-do "$Dodir/000_t1dm_cr_analysis_dataset_controls_2019.do"
-do "$Dodir/000_t1dm_cr_analysis_dataset_controls_2020.do"
+do "$Dodir/000_t1dm_cr_analysis_dataset_controls2019.do"
+do "$Dodir/000_t1dm_cr_analysis_dataset_controls2020.do"
 
 *Feasibility counts
 do "$Dodir/02_t1dm_an_feasibility_counts.do"

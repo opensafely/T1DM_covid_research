@@ -1,9 +1,9 @@
 
 ********************************************************************************
 *
-*	Do-file:		000_cr_matches.do
+*	Do-file:		101_t1dm_cr_2020_matches.do
 *
-*	Programmed by:	Rohini (based on John and Krishnan) 
+*	Programmed by:	Rohini (based on John & Krishnan) 
 *
 *	Data used:		None
 *
@@ -13,40 +13,40 @@
 *
 ********************************************************************************
 *
-*	Purpose:		T
+*	Purpose:		To match cases and controls for a matched cohrot study
 *
-*	Note:			
+*	Note:			https://github.com/opensafely/matching
 ********************************************************************************
 * Open a log file
 capture log close
-log using "output/101_cr_2020_matches", text replace
+log using "output/101_t1dm_cr_2020_matches", text replace
 
 set seed 12938
+frames reset
 
-use  "$Tempdir/cohort_controls_2020.dta", replace 
-keep patient_id indexdate indexMonth practice_id exposed age gender stp
 
-* Load pneumonia patients in 2019 
-append using "data/cohort_`outcome'_pneumonia_hosp" , keep(patient_id indexdate indexMonth practice_id exposed age gender ///
-														stroke_hospital_date stroke_gp_date ///
-														dvt_hospital_date dvt_gp_date /// 
-														pe_hospital_date pe_gp_date /// 
-														died_date_ons_date stp)
-														
+use  "$Tempdir/cohort_covid", replace 
+keep patient_id indexdate indexMonth practice_id exposed age gender setid stp
 
+* Load control patients in 2020
+append using "$Tempdir/cohort_controls_2020.dta", keep(patient_id practice_id exposed age gender ///
+covid_date t1dm_date t1dm_keto_date keto_date t2dm_date death_date stp)
+
+												
 **********************************
 * Separate exposed and unexposed *
 **********************************
+safetab exposed
 frame put if exposed ==1, into(tomatch)
 keep if exposed==0
 frame rename default pool
 
 ***********************************************************
-* Set number of possible matches - Two pneumonia patients *
+* Set number of possible matches - Two patients *
 ***********************************************************
 
-for num 1 : frame tomatch: gen long matchedto_X=.
-local numMatch = 1
+for num 1/2 : frame tomatch: gen long matchedto_X=.
+local numMatch = 2
 
 * sort exposed indexdate
 frame tomatch: sort indexdate 
@@ -59,10 +59,9 @@ noi di "****************************************"
 noi di "Matching progress out of `totaltomatch':"
 noi di "****************************************"
 * match 2 unexposed patients 
-qui {
+*qui {
 	
 forvalues matchnum = 1/`numMatch' {
-
 noi di "Getting match number `matchnum's"
 
 	forvalues i = 1/`totaltomatch' {
@@ -77,6 +76,7 @@ noi di "Getting match number `matchnum's"
 		frame tomatch: scalar TMpractice_id = practice_id[`i']
 		frame tomatch: global TMindexdate = indexdate[`i']
 		frame tomatch: global TMstp = stp[`i']
+		
 		di $TMindexdate
 		
 		frame tomatch: scalar TMindexMonth = indexMonth[`i']
@@ -85,8 +85,8 @@ noi di "Getting match number `matchnum's"
 		cap frame drop eligiblematches
 	
 		* Matching criteria:
-		* Gender, stp, age +/- 1 yr, index month 
-		frame put if gender==TMgender & stp=="$TMstp" & abs(age-TMage)<=1 & indexMonth==TMindexMonth, into(eligiblematches)
+		* Gender, stp, age within 1 yr
+		frame put if gender==TMgender & stp=="$TMstp" & abs(age-TMage)<=1, into(eligiblematches)
 
 		frame eligiblematches: cou
 		if r(N)>=1 {
@@ -94,17 +94,16 @@ noi di "Getting match number `matchnum's"
 			frame eligiblematches: gen agediff=abs(age-TMage)
 			frame eligiblematches: sort agediff u
 			   
-			frame eligiblematches: scalar selectedmatch = patient_id[1]		
+			frame eligiblematches: scalar selectedmatch = patient_id[1] 
+		    frame eligiblematches: replace indexdate = $TMindexdate if indexdate == .
+			frame eligiblematches: format indexdate %td
 		
-		}
-		else scalar selectedmatch = -999
-
 		frame tomatch: replace matchedto_`matchnum' = selectedmatch in `i'
 		drop if patient_id==selectedmatch
 
 	}
 }
-}
+
 
 frame change tomatch
 keep patient_id matchedto* 
@@ -113,23 +112,23 @@ noi di "****************************************"
 noi di "Matching Report:"
 noi di "****************************************"
 
+
 forvalues reportMatch = 1/`numMatch' {
    qui safecount if matchedto_`reportMatch' != -999
    if `r(N)'!=. {
 	local perC = round(100*`r(N)'/ `totaltomatch', 0.1)
 noi di "Out of `totaltomatch' patients, `r(N)' (`perC' %) received `reportMatch' match"
-
 }
-else {
+else  {
 	local perC = round(100*5/ `totaltomatch', 0.1)
 noi di "Out of `totaltomatch' patients, <5 (`perC' %) received `reportMatch' match"
 
 }
 }
 
-save "data/cr_matches_pneumonia_`outcome'", replace
+
+save "$Tempdir/cr_matches_control_2020", replace
 frames reset
 
-}
 
 log close

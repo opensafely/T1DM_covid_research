@@ -12,7 +12,7 @@
 *
 ********************************************************************************
 *
-*	Purpose:		To create dataset for cases with COVID-19
+*	Purpose:		To create dataset for controls without COVID-19 in 2020
 *
 *	Note:			
 ********************************************************************************
@@ -146,7 +146,7 @@ gen covid_date=min(gp_confirmed_date, gp_positive_date,sgss_positive_date, c19_h
 format covid_date %td
 
 * for matching - no index date as this will be determined by the C19 cases
-gen covid_exposed = 0
+gen exposed = 0
 gen flag = "controls_2020"
 
 **************
@@ -174,7 +174,7 @@ replace t1dm_keto=1 if t1dm_keto_date!=.
 *identify t2dm cases
 ren gp_t2dm* t2dm*
 
-local p "covid_exposed t1dm keto t1dm_keto t2dm"
+local p "exposed t1dm keto t1dm_keto t2dm"
 foreach i of local p {
 label define `i' 0"No `i'" 1"`i'"
 label values `i' `i'

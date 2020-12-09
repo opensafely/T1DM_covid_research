@@ -1,4 +1,4 @@
-from cohortextractor import filter_codes_by_category, patients
+from cohortextractor import filter_codes_by_category, patients, combine_codelists
 from codelists import *
 from datetime import datetime, timedelta
 
@@ -9,8 +9,72 @@ def days_before(s, days):
     return datetime.strftime(modified_date, "%Y-%m-%d")
 
 
-def common_variable_define(start_date):
+def common_variable_define(
+    start_date,
+    end_date,
+):
+    
     common_variables = dict(
+    age=patients.age_as_of(
+        start_date,
+        return_expectations={
+            "rate": "universal",
+            "int": {"distribution": "population_ages"},
+        },
+    ),
+
+    sex=patients.sex(
+            return_expectations={
+                "rate": "universal",
+                "category": {"ratios": {"M": 0.49, "F": 0.51}},
+            }
+        ),
+    
+    stp=patients.registered_practice_as_of(
+            start_date,
+            returning="stp_code",
+            return_expectations={
+                "rate": "universal",
+                "category": {
+                    "ratios": {
+                        "STP1": 0.1,
+                        "STP2": 0.1,
+                        "STP3": 0.1,
+                        "STP4": 0.1,
+                        "STP5": 0.1,
+                        "STP6": 0.1,
+                        "STP7": 0.1,
+                        "STP8": 0.1,
+                        "STP9": 0.1,
+                        "STP10": 0.1,
+                    }
+                },
+            },
+        ),
+
+    imd=patients.address_as_of(
+            start_date,
+            returning="index_of_multiple_deprivation",
+            round_to_nearest=100,
+            return_expectations={
+                "rate": "universal",
+                "category": {
+                    "ratios": {
+                        "100": 0.1,
+                        "200": 0.1,
+                        "300": 0.1,
+                        "400": 0.1,
+                        "500": 0.1,
+                        "600": 0.1,
+                        "700": 0.1,
+                        "800": 0.1,
+                        "900": 0.1,
+                        "1000": 0.1,
+                    }
+                },
+            },
+        ),
+ 
     gp_covid_code_date=patients.with_these_clinical_events(
         covid_primary_care_code,        
             return_first_date_in_period=True,
@@ -29,63 +93,91 @@ def common_variable_define(start_date):
     sgss_tested_date=patients.with_test_result_in_sgss(
         pathogen="SARS-CoV-2",
         test_result="any",
-        on_or_after="start_date",
+        on_or_after=start_date,
         find_first_match_in_period=True,
         returning="date",
         date_format="YYYY-MM-DD",
-        return_expectations={"date": {"earliest" : "start_date"},
+        return_expectations={"date": {"earliest" : start_date},
         "rate" : "exponential_increase"},
     ),
     sgss_positive_date=patients.with_test_result_in_sgss(
         pathogen="SARS-CoV-2",
         test_result="positive",
-        on_or_after="start_date",
+        on_or_after=start_date
+,
         find_first_match_in_period=True,
         returning="date",
         date_format="YYYY-MM-DD",
-        return_expectations={"date": {"earliest" : "start_date"},
+        return_expectations={"date": {"earliest" : start_date},
         "rate" : "exponential_increase"},
     ),
 
     covid_admission_date=patients.admitted_to_hospital(
         returning= "date_admitted" ,  # defaults to "binary_flag"
         with_these_diagnoses=covid_codelist,  # optional
-        on_or_after="start_date",
+        on_or_after=start_date
+,
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD",  
-        return_expectations={"date": {"earliest": "start_date"}, "incidence" : 0.25},
+        return_expectations={"date": {"earliest": start_date}, "incidence" : 0.25},
    ),
+    
     covid_admission_primary_diagnosis=patients.admitted_to_hospital(
         returning="primary_diagnosis",
         with_these_diagnoses=covid_codelist,  # optional
-        on_or_after="start_date",
+        on_or_after=start_date,
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD", 
-        return_expectations={"date": {"earliest": "start_date"},"incidence" : 0.25,
+        return_expectations={"date": {"earliest": start_date},"incidence" : 0.25,
             "category": {"ratios": {"U071":0.5, "U072":0.5}},
         },
+    ),
+    pneumonia_admission_date=patients.admitted_to_hospital(
+        returning= "date_admitted" ,  # defaults to "binary_flag"
+        with_these_diagnoses=pneumonia_codelist,  # optional
+        on_or_after=start_date,
+        find_first_match_in_period=True,  
+        date_format="YYYY-MM-DD",  
+        return_expectations={"date": {"earliest": start_date}, "incidence" : 0.25},
+   ),
+    
+    pneumonia_admission_primary_diagnosis=patients.admitted_to_hospital(
+        returning="primary_diagnosis",
+        with_these_diagnoses=pneumonia_codelist,  # optional
+        on_or_after=start_date,
+        find_first_match_in_period=True,  
+        date_format="YYYY-MM-DD", 
+        return_expectations={"date": {"earliest": start_date}},
+    ),
+    pneumonia_discharge_date=patients.admitted_to_hospital(
+        returning="date_discharged",
+        with_these_diagnoses=pneumonia_codelist,
+        on_or_after=start_date,
+        date_format="YYYY-MM-DD",
+        find_first_match_in_period=True,
+        return_expectations={"date": {"earliest": start_date}},
     ),
 
     died_ons_covid_flag_any=patients.with_these_codes_on_death_certificate(
         covid_codelist,
-        on_or_after="start_date",
+        on_or_after=start_date,
         match_only_underlying_cause=False,
-        return_expectations={"date": {"earliest" : "start_date"},
+        return_expectations={"date": {"earliest" : start_date},
         "rate" : "exponential_increase"},
     ),
     died_ons_date=patients.died_from_any_cause(
-        on_or_after="start_date",
+        on_or_after=start_date,
         returning="date_of_death",
         include_month=True,
         include_day=True,
-        return_expectations={"date": {"earliest" : "start_date"},
+        return_expectations={"date": {"earliest" : start_date},
         "rate" : "exponential_increase"},
     ),
 
     dereg_date=patients.date_deregistered_from_all_supported_practices(
-        on_or_before="2020-12-01", 
+        on_or_before=end_date, 
         date_format="YYYY-MM-DD",
-        return_expectations={"date": {"earliest": "start_date"}},
+        return_expectations={"date": {"earliest": start_date}},
     ),
 
     #DIABETES OUTCOME PRIMARY CARE
@@ -161,12 +253,12 @@ def common_variable_define(start_date):
         },
         oad_lastyear_meds=patients.with_these_medications(
             oad_med_codes, 
-            between=["2019-02-01", "2020-01-31"],
+            between=[days_before(start_date, 365), start_date],
             returning="number_of_matches_in_period",
         ),
         insulin_lastyear_meds=patients.with_these_medications(
             insulin_med_codes,
-            between=["2019-02-01", "2020-01-31"],
+            between=[days_before(start_date, 365), start_date],
             returning="number_of_matches_in_period",
         ),
 
@@ -176,47 +268,22 @@ def common_variable_define(start_date):
     t1dm_admission_date=patients.admitted_to_hospital(
         returning= "date_admitted" ,  # defaults to "binary_flag"
         with_these_diagnoses=diabetes_t1_codes_secondary,  # optional
-        on_or_after="start_date",
+        on_or_after=start_date
+,
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD",  
-        return_expectations={"date": {"earliest": "start_date"}, "incidence" : 0.15},
+        return_expectations={"date": {"earliest": start_date}, 
+        "incidence" : 0.15},
    ),
     ketoacidosis_admission_date=patients.admitted_to_hospital(
         returning= "date_admitted" ,  # defaults to "binary_flag"
         with_these_diagnoses=diabetic_ketoacidosis_codes_secondary,  # optional
-        on_or_after="start_date",
+        on_or_after=start_date,
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD",  
-        return_expectations={"date": {"earliest": "start_date"}, "incidence" : 0.15},
+        return_expectations={"date": {"earliest": start_date}, 
+        "incidence" : 0.15},
    ),
-   ## DEMOGRAPHIC COVARIATES
-    # AGE
-    age=patients.age_as_of(
-        "start_date",
-        return_expectations={
-            "rate": "universal",
-            "int": {"distribution": "population_ages"},
-        },
-    ),
-
-    # SEX
-    sex=patients.sex(
-        return_expectations={
-            "rate": "universal",
-            "category": {"ratios": {"M": 0.49, "F": 0.51}},
-        }
-    ),
-
-    # DEPRIVIATION
-    imd=patients.address_as_of(
-        "start_date",
-        returning="index_of_multiple_deprivation",
-        round_to_nearest=100,
-        return_expectations={
-            "rate": "universal",
-            "category": {"ratios": {"100": 0.1, "200": 0.2, "300": 0.7}},
-        },
-    ),
     #ETHNICITY IN 16 CATEGORIES
     ethnicity_16=patients.with_these_clinical_events(
         ethnicity_codes_16,
@@ -330,27 +397,6 @@ def common_variable_define(start_date):
             return_expectations={
                 "int": {"distribution": "normal", "mean": 1000, "stddev": 100},
                 "incidence": 1,
-            },
-        ),
-        stp=patients.registered_practice_as_of(
-            start_date,
-            returning="stp_code",
-            return_expectations={
-                "rate": "universal",
-                "category": {
-                    "ratios": {
-                        "STP1": 0.1,
-                        "STP2": 0.1,
-                        "STP3": 0.1,
-                        "STP4": 0.1,
-                        "STP5": 0.1,
-                        "STP6": 0.1,
-                        "STP7": 0.1,
-                        "STP8": 0.1,
-                        "STP9": 0.1,
-                        "STP10": 0.1,
-                    }
-                },
             },
         ),
         region=patients.registered_practice_as_of(

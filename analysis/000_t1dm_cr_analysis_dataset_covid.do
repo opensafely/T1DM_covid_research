@@ -145,8 +145,8 @@ safetab dereg
 gen covid_date=min(gp_confirmed_date, gp_positive_date,sgss_positive_date, c19_hospitalised_date)
 format covid_date %td
 
-gen covid_exposed=0
-replace covid_exposed=1 if covid_date!=.
+gen covid=0
+replace covid=1 if covid_date!=.
 drop if covid_date ==.
 drop if covid_date > $dataEndDate
 
@@ -182,7 +182,7 @@ replace t1dm_keto=1 if t1dm_keto_date!=.
 *identify t2dm cases
 ren gp_t2dm* t2dm*
 
-local p "covid_exposed t1dm keto t1dm_keto t2dm"
+local p "exposed t1dm keto t1dm_keto t2dm"
 foreach i of local p {
 label define `i' 0"No `i'" 1"`i'"
 label values `i' `i'
@@ -413,6 +413,9 @@ drop if t1dm_keto_date < covid_date
 drop if t2dm_date < covid_date
 safecount	
 
+*not sure this is how it's done- no code for this in Thrombosis repo
+gen setid=[_n]
+sum setid
 save "$Tempdir/cohort_covid.dta", replace 
 
 
