@@ -85,110 +85,35 @@ def common_variable_define(
                 },
             },
         ),
-###
-    gp_covid_code_date=patients.with_these_clinical_events(
-        covid_primary_care_code,        
-            return_first_date_in_period=True,
-            date_format="YYYY-MM-DD",
-            on_or_after=start_date,
-            return_expectations={"date": {"earliest": start_date},},
+
+        practice_id=patients.registered_practice_as_of(
+            start_date,
+            returning="pseudo_id",
+            return_expectations={
+                "int": {"distribution": "normal", "mean": 1000, "stddev": 100},
+                "incidence": 1,
+            },
         ),
-
-    gp_positivetest_date=patients.with_these_clinical_events(
-        covid_primary_care_positive_test,        
-            return_first_date_in_period=True,
-            date_format="YYYY-MM-DD",
-            on_or_after=start_date,
-            return_expectations={"date": {"earliest": start_date},},
+        region=patients.registered_practice_as_of(
+            start_date,
+            returning="nuts1_region_name",
+            return_expectations={
+                "rate": "universal",
+                "category": {
+                    "ratios": {
+                        "North East": 0.1,
+                        "North West": 0.1,
+                        "Yorkshire and The Humber": 0.1,
+                        "East Midlands": 0.1,
+                        "West Midlands": 0.1,
+                        "East": 0.1,
+                        "London": 0.2,
+                        "South East": 0.1,
+                        "South West": 0.1,
+                    },
+                },
+            },
         ),
-    sgss_tested_date=patients.with_test_result_in_sgss(
-        pathogen="SARS-CoV-2",
-        test_result="any",
-        on_or_after=start_date,
-        find_first_match_in_period=True,
-        returning="date",
-        date_format="YYYY-MM-DD",
-        return_expectations={"date": {"earliest" : start_date},
-        "rate" : "exponential_increase"},
-    ),
-    sgss_positive_date=patients.with_test_result_in_sgss(
-        pathogen="SARS-CoV-2",
-        test_result="positive",
-        on_or_after=start_date,
-        find_first_match_in_period=True,
-        returning="date",
-        date_format="YYYY-MM-DD",
-        return_expectations={"date": {"earliest" : start_date},
-        "rate" : "exponential_increase"},
-    ),
-
-    covid_admission_date=patients.admitted_to_hospital(
-        returning= "date_admitted" ,  # defaults to "binary_flag"
-        with_these_diagnoses=covid_codelist,  # optional
-        on_or_after=start_date,
-        find_first_match_in_period=True,  
-        date_format="YYYY-MM-DD",  
-        return_expectations={"date": {"earliest": start_date}, "incidence" : 0.25},
-   ),
-    
-    covid_admission_primary_diagnosis=patients.admitted_to_hospital(
-        returning="primary_diagnosis",
-        with_these_diagnoses=covid_codelist,  # optional
-        on_or_after=start_date,
-        find_first_match_in_period=True,  
-        date_format="YYYY-MM-DD", 
-        return_expectations={"date": {"earliest": start_date},"incidence" : 0.25,
-            "category": {"ratios": {"U071":0.5, "U072":0.5}},
-        },
-    ),
-    
-    pneumonia_admission_date=patients.admitted_to_hospital(
-        returning= "date_admitted" ,  # defaults to "binary_flag"
-        with_these_diagnoses=pneumonia_codelist,  # optional
-        on_or_after=start_date,
-        find_first_match_in_period=True,  
-        date_format="YYYY-MM-DD",  
-        return_expectations={"date": {"earliest": start_date}, "incidence" : 0.25},
-   ),
-    
-    pneumonia_admission_primary_diagnosis=patients.admitted_to_hospital(
-        returning="primary_diagnosis",
-        with_these_diagnoses=pneumonia_codelist,  # optional
-        on_or_after=start_date,
-        find_first_match_in_period=True,  
-        date_format="YYYY-MM-DD", 
-        return_expectations={"date": {"earliest": start_date}},
-    ),
-    pneumonia_discharge_date=patients.admitted_to_hospital(
-        returning="date_discharged",
-        with_these_diagnoses=pneumonia_codelist,
-        on_or_after=start_date,
-        date_format="YYYY-MM-DD",
-        find_first_match_in_period=True,
-        return_expectations={"date": {"earliest": start_date}},
-    ),
-###
-    died_ons_covid_flag_any=patients.with_these_codes_on_death_certificate(
-        covid_codelist,
-        on_or_after=start_date,
-        match_only_underlying_cause=False,
-        return_expectations={"date": {"earliest" : start_date},
-        "rate" : "exponential_increase"},
-    ),
-    died_ons_date=patients.died_from_any_cause(
-        on_or_after=start_date,
-        returning="date_of_death",
-        include_month=True,
-        include_day=True,
-        return_expectations={"date": {"earliest" : start_date},
-        "rate" : "exponential_increase"},
-    ),
-
-    dereg_date=patients.date_deregistered_from_all_supported_practices(
-        on_or_before=end_date, 
-        date_format="YYYY-MM-DD",
-        return_expectations={"date": {"earliest": start_date}},
-    ),
 
     #DIABETES OUTCOME PRIMARY CARE
     gp_t1dm_date=patients.with_these_clinical_events(
@@ -401,33 +326,112 @@ def common_variable_define(
                 "incidence": 0.95,
             },
         ),
-        practice_id=patients.registered_practice_as_of(
-            start_date,
-            returning="pseudo_id",
-            return_expectations={
-                "int": {"distribution": "normal", "mean": 1000, "stddev": 100},
-                "incidence": 1,
-            },
+
+    dereg_date=patients.date_deregistered_from_all_supported_practices(
+        on_or_before=end_date, 
+        date_format="YYYY-MM-DD",
+        return_expectations={"date": {"earliest": start_date}},
+    ),
+
+
+    died_ons_covid_flag_any=patients.with_these_codes_on_death_certificate(
+        covid_codelist,
+        on_or_after=start_date,
+        match_only_underlying_cause=False,
+        return_expectations={"date": {"earliest" : start_date},
+        "rate" : "exponential_increase"},
+    ),
+    died_ons_date=patients.died_from_any_cause(
+        on_or_after=start_date,
+        returning="date_of_death",
+        include_month=True,
+        include_day=True,
+        return_expectations={"date": {"earliest" : start_date},
+        "rate" : "exponential_increase"},
+    ),
+
+    gp_covid_code_date=patients.with_these_clinical_events(
+        covid_primary_care_code,        
+            return_first_date_in_period=True,
+            date_format="YYYY-MM-DD",
+            on_or_after=start_date,
+            return_expectations={"date": {"earliest": start_date},},
         ),
-        region=patients.registered_practice_as_of(
-            start_date,
-            returning="nuts1_region_name",
-            return_expectations={
-                "rate": "universal",
-                "category": {
-                    "ratios": {
-                        "North East": 0.1,
-                        "North West": 0.1,
-                        "Yorkshire and The Humber": 0.1,
-                        "East Midlands": 0.1,
-                        "West Midlands": 0.1,
-                        "East": 0.1,
-                        "London": 0.2,
-                        "South East": 0.1,
-                        "South West": 0.1,
-                    },
-                },
-            },
+
+    gp_positivetest_date=patients.with_these_clinical_events(
+        covid_primary_care_positive_test,        
+            return_first_date_in_period=True,
+            date_format="YYYY-MM-DD",
+            on_or_after=start_date,
+            return_expectations={"date": {"earliest": start_date},},
         ),
+    sgss_tested_date=patients.with_test_result_in_sgss(
+        pathogen="SARS-CoV-2",
+        test_result="any",
+        on_or_after=start_date,
+        find_first_match_in_period=True,
+        returning="date",
+        date_format="YYYY-MM-DD",
+        return_expectations={"date": {"earliest" : start_date},
+        "rate" : "exponential_increase"},
+    ),
+    sgss_positive_date=patients.with_test_result_in_sgss(
+        pathogen="SARS-CoV-2",
+        test_result="positive",
+        on_or_after=start_date,
+        find_first_match_in_period=True,
+        returning="date",
+        date_format="YYYY-MM-DD",
+        return_expectations={"date": {"earliest" : start_date},
+        "rate" : "exponential_increase"},
+    ),
+
+    covid_admission_date=patients.admitted_to_hospital(
+        returning= "date_admitted" ,  # defaults to "binary_flag"
+        with_these_diagnoses=covid_codelist,  # optional
+        on_or_after=start_date,
+        find_first_match_in_period=True,  
+        date_format="YYYY-MM-DD",  
+        return_expectations={"date": {"earliest": start_date}, "incidence" : 0.25},
+   ),
+    
+    covid_admission_primary_diagnosis=patients.admitted_to_hospital(
+        returning="primary_diagnosis",
+        with_these_diagnoses=covid_codelist,  # optional
+        on_or_after=start_date,
+        find_first_match_in_period=True,  
+        date_format="YYYY-MM-DD", 
+        return_expectations={"date": {"earliest": start_date},"incidence" : 0.25,
+            "category": {"ratios": {"U071":0.5, "U072":0.5}},
+        },
+    ),
+    ####  
+    pneumonia_admission_date=patients.admitted_to_hospital(
+        returning= "date_admitted" ,  # defaults to "binary_flag"
+        with_these_diagnoses=pneumonia_codelist,  # optional
+        on_or_after=start_date,
+        find_first_match_in_period=True,  
+        date_format="YYYY-MM-DD",  
+        return_expectations={"date": {"earliest": start_date}, "incidence" : 0.25},
+   ),
+    
+    pneumonia_admission_primary_diagnosis=patients.admitted_to_hospital(
+        returning="primary_diagnosis",
+        with_these_diagnoses=pneumonia_codelist,  # optional
+        on_or_after=start_date,
+        find_first_match_in_period=True,  
+        date_format="YYYY-MM-DD", 
+        return_expectations={"date": {"earliest": start_date}},
+    ),
+    pneumonia_discharge_date=patients.admitted_to_hospital(
+        returning="date_discharged",
+        with_these_diagnoses=pneumonia_codelist,
+        on_or_after=start_date,
+        date_format="YYYY-MM-DD",
+        find_first_match_in_period=True,
+        return_expectations={"date": {"earliest": start_date}},
+    ),
+
+
     )
     return common_variables
