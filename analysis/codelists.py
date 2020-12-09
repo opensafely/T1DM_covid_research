@@ -132,3 +132,8 @@ clear_smoking_codes = codelist_from_csv(
     column="CTV3Code",
     category_column="Category",
 )
+pneumonia_codelist = codelist_from_csv(
+    "codelists/opensafely-pneumonia-secondary-care.csv",
+    system="icd10",
+    column="ICD code",
+)
