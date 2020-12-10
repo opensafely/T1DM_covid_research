@@ -19,10 +19,10 @@ patid	indexdate	gender	startdate	enddate	exposed	yob
 cap log close
 log using $logdir/02_t1dm_cr_matched_cohort.log, replace t
 
-
+use "$Tempdir/analysis_dataset_formatching.dta", clear
 set seed 4006
 
  getmatchedcohort, practice gender yob yobwindow(2) followup dayspriorreg(0) ctrlsperexp(2) updates(100) cprddb(gold) ///
  savedir("$Tempdir") filesuffix(t1dm) 
  
- use "$Tempdir/getmatchedcohortt1dm", clear
+ use "$Tempdir\getmatchedcohortt1dm", clear
