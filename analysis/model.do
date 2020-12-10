@@ -1,4 +1,31 @@
-import delimited `c(pwd)'/output/input.csv, clear
+********************************************************************************
+*
+*	Do-file:		model.do
+*
+*	Programmed by:	Rohini & Kevin
+*
+*	Data used:		output/input_covid.csv
+
+*	Data created:	a number of analysis datasets
+*
+*	Other output:	-
+*
+********************************************************************************
+*
+*	Purpose:		This do-file performs the data creation and preparation 
+*					do-files. 
+*  
+********************************************************************************
+
+*start with cases of COVID-19
+import delimited "`c(pwd)'/output/input.csv", clear
+
+********** INSERT DATA END DATE ************
+global dataEndDate td(01dec2020)
+
+set more off
+cd  "`c(pwd)'"
+adopath + "`c(pwd)'/analysis/ado"
 
 *set filepaths
 global Projectdir `c(pwd)'
@@ -33,12 +60,10 @@ global outdir  	  "$Outdir"
 global logdir     "$Logdir"
 global tempdir    "$Tempdir"
 
+global allvar "gp_confirmed gp_positive sgss_positive c19_hospitalised pneumonia_hospitalised gp_t1dm gp_t2dm t1dm_hospitalised  gp_keto  keto_hospitalised death"
+global exposures "gp_confirmed gp_positive sgss_positive c19_hospitalised pneumonia_hospitalised "
+global outcomes "t1dm t2dm t1dm_keto"
 
-*will add death to the global when we do survival analysis for censoring purposes
-
-global outcomes "confirmed tested positivetest c19_hospitalised t1dm_primarycare t1dm_hospitalised t2dm_primarycare keto_primarycare  keto_hospitalised death"
-global  outcomes2 "t1dm keto t1dm_keto baseline_t1dm incident_t1dm monthbefore_t1dm baseline_keto incident_keto monthbefore_t1dm_keto  baseline_t1dm_keto incident_t1dm_keto monthbefore_keto"
-global outcomes3 "t1dm keto t1dm_keto"
 /**********************
 Data cleaning
 **********************/
@@ -46,11 +71,5 @@ Data cleaning
 *Create analysis dataset
 do "$Dodir/01_t1dm_cr_analysis_dataset.do"
 
-*Feasibility counts
-do "$Dodir/02_t1dm_an_feasibility_counts.do"
-
-*Table 1 descriptives
-do "$Dodir/03_t1dm_table1_descriptives.do"
-
-*Time to event
-do "$Dodir/04_t1dm_an_multivariable.do"
+*Perform matching
+do "$Dodir/02_t1dm_perform_matching.do"

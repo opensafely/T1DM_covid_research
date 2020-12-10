@@ -19,4 +19,6 @@ opensafely/covid-identification-in-primary-care-historic-case/2020-06-23
 opensafely/covid-identification-in-primary-care-potential-historic-case/2020-06-23
 opensafely/hypertension/2020-04-28
 opensafely/smoking-clear/2020-04-29
+opensafely/pneumonia-secondary-care/2020-10-05
+
 
