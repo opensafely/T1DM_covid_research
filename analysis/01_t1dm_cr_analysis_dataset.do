@@ -162,17 +162,6 @@ safetab monthbefore_`i'
 }
 
 
-/* CENSORING */
-/* SET FU DATES===============================================================*/ 
-
-* Censoring dates for each outcome (last date outcome data available) 
-*https://github.com/opensafely/rapid-reports/blob/master/notebooks/latest-dates.ipynb
-
-*outcomes are t1dm and ketoacidosis- censoring should be at earliest of TPP or SUS end date
-gen censor_date = d("01/11/2020")
-format *censor_date %d
-sum censor_date, format
-*******************************************************************************
 
 
 /* DEMOGRAPHICS */ 
@@ -365,23 +354,33 @@ replace smoke = .u if smoking_status==""
 label values smoke smoke
 drop smoking_status
 
-/**** Create survival times  ****/
-* For looping later, name must be stime_binary_outcome_name
 
-* Survival time = last followup date (first: deregistration date, end study, death, or that outcome)
-*Ventilation does not have a survival time because it is a yes/no flag
-foreach i of global outcomes {
-	gen stime_`i' = min(censor_date, death_date, `i'_date, dereg_date)
-}
+/* SET DATES===============================================================*/ 
+*generate indexdate as date of COVID-19 infection
+gen indexdate=covid_date
 
-* If outcome occurs after censoring, set to zero
-foreach i of global outcomes {
-	replace `i'=0 if `i'_date>stime_`i'
-	tab `i'
-}
+*gen startdate as start of cohort followup
+gen startdate=d("01/02/2020")
+
+* Censoring dates for each outcome (last date outcome data available) 
+*https://github.com/opensafely/rapid-reports/blob/master/notebooks/latest-dates.ipynb
+
+*outcomes are t1dm and ketoacidosis- censoring should be at earliest of TPP or SUS end date
+gen censor_date = d("01/11/2020")
+sum censor_date, format
+
+gen enddate=min(dereg_date,death_date,censor_date)
+
+gen yob=2020-age
+
+
+
+*******************************************************************************
+
 
 * Format date variables
 format  stime* %td 
+
 
 /* LABEL VARIABLES============================================================*/
 *  Label variables you are intending to keep, drop the rest 
