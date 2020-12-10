@@ -71,5 +71,5 @@ Data cleaning
 *Create analysis dataset
 do "$Dodir/01_t1dm_cr_analysis_dataset.do"
 
-*Format dataset for mathching
-do "$Dodir/02_t1dm_prepare_for_matching.do"
+*Perform matching
+do "$Dodir/02_t1dm_perform_matching.do"
