@@ -18,7 +18,7 @@
 ********************************************************************************
 
 *start with cases of COVID-19
-import delimited "`c(pwd)'/output/input_covid.csv"
+import delimited "`c(pwd)'/output/input_covid.csv", clear
 
 ********** INSERT DATA END DATE ************
 global dataEndDate td(01dec2020)
@@ -74,11 +74,10 @@ do "$Dodir/000_t1dm_cr_analysis_dataset_covid.do"
 do "$Dodir/000_t1dm_cr_analysis_dataset_controls2019.do"
 do "$Dodir/000_t1dm_cr_analysis_dataset_controls2020.do"
 
-*Feasibility counts
-do "$Dodir/02_t1dm_an_feasibility_counts.do"
+*create matched cases and controls in python
 
 *Table 1 descriptives
-do "$Dodir/03_t1dm_table1_descriptives.do"
+do "$Dodir/01_t1dm_table1_descriptives.do"
 
 *Time to event
 do "$Dodir/04_t1dm_an_multivariable.do"

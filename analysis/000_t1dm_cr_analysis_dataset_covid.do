@@ -12,16 +12,16 @@
 *
 ********************************************************************************
 *
-*	Purpose:		To create dataset for controls without COVID-19 from the year previous (2019-2020)
+*	Purpose:		To create dataset for cases with COVID-19
 *
 *	Note:			
 ********************************************************************************
 
 *start with cases of COVID-19
-import delimited "`c(pwd)'/output/input_control_2019.csv", clear
+import delimited "`c(pwd)'/output/input_covid.csv", clear
 
 ********** INSERT DATA END DATE ************
-global dataEndDate td(01dec2019)
+global dataEndDate td(01dec2020)
 
 
 di "STARTING COUNT FROM IMPORT:"
@@ -103,8 +103,7 @@ foreach var of global allvar {
 ren bmi_date_measured bmi_date
 foreach var of varlist hypertension_date	///
 					   gp_unknowndm_date	///
-					   bmi_date			 	///
-					   sgss_tested			{
+					   bmi_date				{
 	di "`var'"
 	capture confirm string variable `var'
 	if _rc!=0 {
@@ -139,15 +138,23 @@ safetab dereg
 
 **********************
 * Exposure
-*Diagnosed with covid in primary care, SGSS, or hospital - for controls this is a censoring event, their follow-up ends if they develop the exposure of interest
+*Diagnosed with covid in primary care, SGSS, or hospital
 **********************
 
 gen covid_date=min(gp_confirmed_date, gp_positive_date,sgss_positive_date, c19_hospitalised_date)
 format covid_date %td
 
-* for matching - no index date as this will be determined by the C19 cases
-gen exposed = 0
-gen flag = "controls_2019"
+gen covid=0
+replace covid=1 if covid_date!=.
+drop if covid_date ==.
+drop if covid_date > $dataEndDate
+
+* for matching 
+gen exposed = 1
+gen indexdate= covid_date
+format indexdate %td
+gen indexMonth = month(covid_date)
+gen flag = "covid_cases"
 
 **************
 *  Outcomes  *
@@ -405,7 +412,10 @@ drop if t1dm_keto_date < covid_date
 drop if t2dm_date < covid_date
 safecount	
 
-save "$Tempdir/cohort_controls_2019.dta", replace 
+*not sure this is how it's done- no code for this in Thrombosis repo
+gen setid=[_n]
+sum setid
+save "$Tempdir/cohort_covid.dta", replace 
 
 
 
