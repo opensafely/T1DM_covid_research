@@ -60,8 +60,8 @@ global outdir  	  "$Outdir"
 global logdir     "$Logdir"
 global tempdir    "$Tempdir"
 
-global allvar "gp_confirmed gp_positive sgss_positive c19_hospitalised pneumonia_hospitalised gp_t1dm gp_t2dm t1dm_hospitalised  gp_keto  keto_hospitalised death"
-global exposures "gp_confirmed gp_positive sgss_positive c19_hospitalised pneumonia_hospitalised"
+global allvar "gp_confirmed gp_positive sgss_positive c19_hospitalised  gp_t1dm gp_t2dm t1dm_hospitalised  gp_keto  keto_hospitalised death"
+global exposures "gp_confirmed gp_positive sgss_positive c19_hospitalised "
 global outcomes "t1dm t2dm t1dm_keto"
 
 /**********************
@@ -71,8 +71,3 @@ Data cleaning
 *Create analysis datasetsfor cases and controls
 do "$Dodir/01_t1dm_cr_analysis_dataset.do"
 
-*Table 1 descriptives
-do "$Dodir/01_t1dm_table1_descriptives.do"
-
-*Time to event
-do "$Dodir/04_t1dm_an_multivariable.do"

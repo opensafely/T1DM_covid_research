@@ -306,7 +306,7 @@ study = StudyDefinition(
         on_or_after="2020-02-01",
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD", 
-        return_expectations={"date": {"earliest": "2020-02-01"},"incidence" : 0.25,
+        return_expectations={"date": {"earliest": "2020-02-01"},"incidence" : 0.25
             "category": {"ratios": {"U071":0.5, "U072":0.5}},
         },
     ),
@@ -333,7 +333,7 @@ study = StudyDefinition(
         on_or_after="2020-02-01",
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD",  
-        return_expectations={"date": {"earliest": "2020-02-01"}, "incidence" : 0.25},
+        return_expectations={"date": {"earliest": "2020-02-01"}, "incidence" : 0.15},
    ),
 
     pneumonia_admission_primary_diagnosis=patients.admitted_to_hospital(
@@ -342,7 +342,7 @@ study = StudyDefinition(
         on_or_after="2020-02-01",
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD", 
-        return_expectations={"date": {"earliest": "2020-02-01"}},
+        return_expectations={"date": {"earliest": "2020-02-01"}, "incidence" : 0.15},
     ),
 
 

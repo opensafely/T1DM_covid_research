@@ -77,7 +77,7 @@ ren ketoacidosis				gp_keto_date
 
 ren t1dm_admission_date			t1dm_hospitalised_date
 ren ketoacidosis_admission_date	keto_hospitalised_date
-ren pneumonia_admission_date	pneumonia_hospitalised_date
+*ren pneumonia_admission_date	pneumonia_hospitalised_date
 	 
 *DEATH
 ren died_date_ons				death_date
