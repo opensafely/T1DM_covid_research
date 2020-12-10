@@ -6,6 +6,7 @@ Variables needed in the dataset at the outset
 patid gender startdate enddate yob indexdate (for exposed patients)
 ***/
 /****************************************************/
+program drop getmatchedcohort
 program define getmatchedcohort
 syntax, cprddb(string) [practice gender yob yobwindow(real 1) followup dayspriorreg(real 0) ///
 ctrlsperexp(real 4) updates(real 1000) getallpossible savedir(string) ///
@@ -79,12 +80,13 @@ noi di ""
 if "`savedir'"!="." noi di "Saving file 'getmatches' in `savedir'"
 else noi di "Saving file 'getmatches`filesuffix'' in current working directory"
 noi di ""
+/*
 if "`dontcheck'"=="" {
 noi di "CONTINUE? (y then enter to continue, anything else then enter to quit" _request(keyentry)
 if "$keyentry"!="y" error 1
 noi di "" 
 }
-
+*/
 tempfile dataaspresented
 save `dataaspresented', replace
 
