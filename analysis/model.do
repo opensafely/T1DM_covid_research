@@ -18,7 +18,7 @@
 ********************************************************************************
 
 *start with cases of COVID-19
-import delimited "`c(pwd)'/output/input_covid.csv", clear
+import delimited "`c(pwd)'/output/input.csv", clear
 
 ********** INSERT DATA END DATE ************
 global dataEndDate td(01dec2020)
@@ -60,8 +60,8 @@ global outdir  	  "$Outdir"
 global logdir     "$Logdir"
 global tempdir    "$Tempdir"
 
-global allvar "gp_confirmed gp_positive sgss_positive c19_hospitalised  gp_t1dm gp_t2dm t1dm_hospitalised  gp_keto  keto_hospitalised death"
-global exposures "gp_confirmed gp_positive sgss_positive c19_hospitalised "
+global allvar "gp_confirmed gp_positive sgss_positive c19_hospitalised pneumonia_hospitalised gp_t1dm gp_t2dm t1dm_hospitalised  gp_keto  keto_hospitalised death"
+global exposures "gp_confirmed gp_positive sgss_positive c19_hospitalised pneumonia_hospitalised "
 global outcomes "t1dm t2dm t1dm_keto"
 
 /**********************
