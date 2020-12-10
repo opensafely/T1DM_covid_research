@@ -1,6 +1,6 @@
 
 /*==============================================================================
-DO FILE NAME:			02_t1dm_prepare_for_matching
+DO FILE NAME:			02_t1dm_cr_matched_cohort
 PROJECT:				T1DM and COVID outcomes
 DATE: 					7th September 2020 
 AUTHOR:					Rohini Mathur 									
@@ -17,6 +17,12 @@ patid	indexdate	gender	startdate	enddate	exposed	yob
 
 * Open a log file
 cap log close
-log using $logdir/02_t1dm_prepare_for_matching.log, replace t
+log using $logdir/02_t1dm_cr_matched_cohort.log, replace t
 
-use "$Tempdir/analysis_dataset.dta", clear
+
+set seed 4006
+
+ getmatchedcohort, practice gender yob yobwindow(2) followup dayspriorreg(0) ctrlsperexp(2) updates(100) cprddb(gold) ///
+ savedir("$Tempdir") filesuffix(t1dm) 
+ 
+ use "$Tempdir/getmatchedcohortt1dm", clear

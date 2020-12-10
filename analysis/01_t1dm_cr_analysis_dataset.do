@@ -374,14 +374,6 @@ gen enddate=min(dereg_date,death_date,censor_date)
 gen yob=2020-age
 
 
-
-*******************************************************************************
-
-
-* Format date variables
-format  stime* %td 
-
-
 /* LABEL VARIABLES============================================================*/
 *  Label variables you are intending to keep, drop the rest 
 
@@ -411,6 +403,14 @@ sort patient_id
 
 format *date* %d
 save "$Tempdir/analysis_dataset.dta", replace
+
+*prepare dataset for matching
+keep patient_id indexdate sex startdate enddate covid yob
+ren patient_id patid
+ren sex gender
+ren covid exposed
+sort indexdate
+save "$Tempdir/analysis_dataset_formatching.dta", replace
 
 * Close log file 
 log close
