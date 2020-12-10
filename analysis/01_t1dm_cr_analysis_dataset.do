@@ -18,7 +18,7 @@ OTHER OUTPUT: 			logfiles, printed to folder analysis/$logdir
 
 * Open a log file
 cap log close
-log using 01_t1dm_cr_create_analysis_dataset.log, replace t
+log using $logdir/01_t1dm_cr_create_analysis_dataset.log, replace t
 import delimited `c(pwd)'/output/input.csv, clear
 
 di "STARTING safecount FROM IMPORT:"
@@ -45,14 +45,6 @@ label define male 0"Female" 1"Male"
 label values male male
 safetab male
 safecount
-
-
-*Start dates
-gen index 			= "01/02/2020"
-
-* Date of cohort entry, 1 Feb 2020
-gen indexdate = date(index, "DMY")
-format indexdate %d
 
 
 *******************************************************************************
@@ -409,9 +401,6 @@ label var stp 						"Sustainability and Transformation Partnership"
 lab var region						"Region of England"
 lab var bmi 						"BMI"
 lab var hypertension				"Hypertension"
-
-* Outcomes and follow-up
-label var indexdate					"Date of study start (Feb 1 2020)"
 
 *Outcome dates
 foreach i of global outcomes {
