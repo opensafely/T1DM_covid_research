@@ -4,25 +4,25 @@ expectations:
   population_size: 10000
 
 actions:
-  generate_cohorts:
+  generate_cohort:
     run: cohortextractor:latest generate_cohort
     outputs:
       highly_sensitive:
         cohort: output/input.csv
 
 
-    01_cr_dataset:
+  01_create_dataset:
     run: stata-mp:latest analysis/01_t1dm_cr_analysis_dataset.do
-    needs: [generate_cohorts]
+    needs: [generate_cohort]
     outputs:
        highly_sensitive:
         analysis_dataset: output/analysis_dataset.dta
         analysis_dataset_formatching: output/analysis_dataset_formatching.dta
 
 
-    02_perform_matching:
-    run: stata-mp:latest analysis/02_t1dm_cr_matched_cohort
-    needs: [generate_cohorts]
+  02_perform_matching:
+    run: stata-mp:latest analysis/02_t1dm_perform_matching
+    needs: [01_create_dataset]
     outputs:
        highly_sensitive:
         analysis_dataset: output/getmatchedcohortt1dm.dta
