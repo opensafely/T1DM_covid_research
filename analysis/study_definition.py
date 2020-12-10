@@ -251,7 +251,7 @@ study = StudyDefinition(
         on_or_after="2020-02-01",
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD",  
-        return_expectations={"date": {"earliest": "2020-02-01"}, "incidence" : 0.95},
+        return_expectations={"date": {"earliest": "2020-02-01"}, "incidence" : 0.10},
    ),
     ketoacidosis_admission_date=patients.admitted_to_hospital(
         returning= "date_admitted" ,  # defaults to "binary_flag"
@@ -259,7 +259,7 @@ study = StudyDefinition(
         on_or_after="2020-02-01",
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD",  
-        return_expectations={"date": {"earliest": "2020-02-01"}, "incidence" : 0.95},
+        return_expectations={"date": {"earliest": "2020-02-01"}, "incidence" : 0.10},
    ),
 
 
@@ -269,16 +269,17 @@ study = StudyDefinition(
             return_first_date_in_period=True,
             date_format="YYYY-MM-DD",
             on_or_after="2020-02-01",
-            return_expectations={"date": {"earliest": "2020-02-01"}}
-        ),
+        return_expectations={"date": {"earliest": "2020-02-01"}, "incidence" : 0.10},
+    ),
 
     gp_positivetest_date=patients.with_these_clinical_events(
         covid_primary_care_positive_test,        
             return_first_date_in_period=True,
             date_format="YYYY-MM-DD",
             on_or_after="2020-02-01",
-            return_expectations={"date": {"earliest": "2020-02-01"}}
-        ),
+        return_expectations={"date": {"earliest": "2020-02-01"}, "incidence" : 0.10},
+    ),
+
     sgss_positive_date=patients.with_test_result_in_sgss(
         pathogen="SARS-CoV-2",
         test_result="positive",
@@ -286,8 +287,7 @@ study = StudyDefinition(
         find_first_match_in_period=True,
         returning="date",
         date_format="YYYY-MM-DD",
-        return_expectations={"date": {"earliest" : "2020-02-01"},
-        "rate" : "exponential_increase"},
+        return_expectations={"date": {"earliest": "2020-02-01"}, "incidence" : 0.10},
     ),
 
     
@@ -310,7 +310,7 @@ study = StudyDefinition(
             "category": {"ratios": {"U071":0.5, "U072":0.5}},
         },
     ),
-    
+
     died_ons_covid_flag_any=patients.with_these_codes_on_death_certificate(
         covid_codelist,
         on_or_after="2020-02-01",
@@ -335,5 +335,16 @@ study = StudyDefinition(
         date_format="YYYY-MM-DD",  
         return_expectations={"date": {"earliest": "2020-02-01"}, "incidence" : 0.25},
    ),
+
+    pneumonia_admission_primary_diagnosis=patients.admitted_to_hospital(
+        returning="primary_diagnosis",
+        with_these_diagnoses=pneumonia_codelist,  # optional
+        on_or_after="2020-02-01",
+        find_first_match_in_period=True,  
+        date_format="YYYY-MM-DD", 
+        return_expectations={"date": {"earliest": "2020-02-01"}},
+    ),
+
+
     
 )
