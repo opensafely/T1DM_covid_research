@@ -424,21 +424,6 @@ sort patient_id
 format *date* %d
 save "$Tempdir/analysis_dataset.dta", replace
 
-****************************************************************
-*  Create outcome specific datasets for the whole population  *
-*****************************************************************
-
-
-foreach i of global outcomes {
-	use "$Tempdir/analysis_dataset.dta", clear
-	drop if `i'_date <= indexdate 
-	safecount
-	stset stime_`i', fail(`i') 				///	
-	id(patient_id) enter(indexdate) origin(indexdate)
-	save "$Tempdir/analysis_dataset_STSET_`i'.dta", replace
-}	
-
-	
 * Close log file 
 log close
 
