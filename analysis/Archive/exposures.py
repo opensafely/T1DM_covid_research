@@ -49,11 +49,9 @@
         on_or_after=start_date,
         find_first_match_in_period=True,  
         date_format="YYYY-MM-DD", 
-        return_expectations={"date": {"earliest": start_date},"incidence" : 0.25,
-            "category": {"ratios": {"U071":0.5, "U072":0.5}},
-        },
+        return_expectations={"date": {"earliest": start_date}},
+        
     ),
-    ####  
     pneumonia_admission_date=patients.admitted_to_hospital(
         returning= "date_admitted" ,  # defaults to "binary_flag"
         with_these_diagnoses=pneumonia_codelist,  # optional

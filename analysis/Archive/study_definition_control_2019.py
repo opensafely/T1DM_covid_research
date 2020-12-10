@@ -57,5 +57,6 @@ study = StudyDefinition(
             "2018-02-01", "2019-02-01"
         ),
     ),
+    
     **common_variables
 )
