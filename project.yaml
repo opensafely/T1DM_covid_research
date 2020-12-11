@@ -11,20 +11,25 @@ actions:
         cohort: output/input.csv
 
 
-    01_cr_dataset:
+  01_cr_dataset:
     run: stata-mp:latest analysis/01_t1dm_cr_analysis_dataset.do
     needs: [generate_cohorts]
     outputs:
-       highly_sensitive:
+      highly_sensitive:
         analysis_dataset: output/analysis_dataset.dta
         analysis_dataset_formatching: output/analysis_dataset_formatching.dta
+        analysis_dataset_formatching10PercentSample: output/analysis_dataset_formatchingTENPERCENT.dta
+      moderately_sensitive:
+        log: released_analysis_results/01_t1dm_cr_create_analysis_dataset.log
 
 
-    02_perform_matching:
-    run: stata-mp:latest analysis/02_t1dm_cr_matched_cohort
-    needs: [generate_cohorts]
+  02_perform_matching:
+    run: stata-mp:latest analysis/02_t1dm_perform_matching.do
+    needs: [01_cr_dataset]
     outputs:
-       highly_sensitive:
+      highly_sensitive:
         analysis_dataset: output/getmatchedcohortt1dm.dta
+      moderately_sensitive:
+        log: released_analysis_results/02_t1dm_cr_matched_cohort.log
 
 
