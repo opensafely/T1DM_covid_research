@@ -15,11 +15,15 @@ OTHER OUTPUT: 			logfiles, printed to folder analysis/$logdir
 
 				
 ==============================================================================*/
+sysdir set PLUS ./analysis/adofiles
+sysdir set PERSONAL ./analysis/adofiles
+
 
 * Open a log file
 cap log close
-log using $logdir/01_t1dm_cr_create_analysis_dataset.log, replace t
-import delimited `c(pwd)'/output/input.csv, clear
+log using ./released_analysis_results/01_t1dm_cr_create_analysis_dataset.log, replace t
+
+import delimited ./output/input.csv, clear
 
 di "STARTING safecount FROM IMPORT:"
 safecount
@@ -75,23 +79,26 @@ ren pneumonia_admission_date	pneumonia_hospitalised_date
 ren died_date_ons				death_date
 
 /* CONVERT STRINGS TO DATE FOR COVID EXPOSURE VARIABLES =============================*/
+*Note: kw edited to remove reliance on global (and therefore model.do) in the pipeline
 
-* Recode to dates from the strings 
-foreach var of global allvar {
-	di "`allvar'"
-	confirm string variable `var'_date
-	rename `var'_date `var'_dstr
-	gen `var'_date = date(`var'_dstr, "YMD")
-	drop `var'_dstr
-	format `var'_date %td 
-
+foreach var of varlist gp_confirmed_date gp_positive_date sgss_positive_date c19_hospitalised_date pneumonia_hospitalised_date gp_t1dm_date gp_t2dm_date t1dm_hospitalised_date  gp_keto_date  keto_hospitalised_date death_date {
+		confirm string variable `var'
+		rename `var' _tmp
+		gen `var' = date(_tmp, "YMD")
+		drop _tmp
+		format %d `var'
 }
+
+
 * Binary indicators for exposures and outcomes
-foreach i of global allvar {
-		gen `i'=0
-		replace  `i'=1 if `i'_date < .
-		safetab `i'
-		label variable `i' "`i'"
+foreach var of varlist gp_confirmed_date gp_positive_date sgss_positive_date c19_hospitalised_date pneumonia_hospitalised_date gp_t1dm_date gp_t2dm_date t1dm_hospitalised_date  gp_keto_date  keto_hospitalised_date death_date {
+		
+		local binaryVersion=subinstr("`var'","_date", "", 1)
+		display "``var''"
+		gen `binaryVersion'=0
+		replace  `binaryVersion'=1 if `var'< .
+		safetab `binaryVersion'
+		label variable `binaryVersion' "`binaryVersion'"
 }
 
 *date of deregistration
@@ -402,7 +409,8 @@ foreach i of global outcomes {
 sort patient_id
 
 format *date* %d
-save "$Tempdir/analysis_dataset.dta", replace
+save ./output/analysis_dataset.dta, replace
+
 
 *prepare dataset for matching
 keep patient_id indexdate sex startdate enddate covid yob
@@ -410,7 +418,13 @@ ren patient_id patid
 ren sex gender
 ren covid exposed
 sort indexdate
-save "$Tempdir/analysis_dataset_formatching.dta", replace
+save ./output/analysis_dataset_formatching.dta, replace
+
+*create a 10% sample of the matching-prepared dataset
+set seed 10853
+sample 10
+count
+save ./output/analysis_dataset_formatchingTENPERCENT.dta, replace
 
 * Close log file 
 log close
