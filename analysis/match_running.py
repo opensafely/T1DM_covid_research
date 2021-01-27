@@ -1,22 +1,12 @@
 from match import match
-from sys import argv
-
-matching_dict = {
-    "control_2019": {
-        "match_csv": "input_control_2019",
-        "replace_match_index_date_with_case": "1_year_earlier",
-        "date_exclusion_variables": {"died_date_ons": "before"},
-    },
-    "control_2020": {
-        "match_csv": "input_control_2020",
-        "replace_match_index_date_with_case": "no_offset",
-        "date_exclusion_variables": {"died_date_ons": "before"},
-    },
-}
 
 
+
+
+## Match COVID population to general population from 2020
 match(
     case_csv="input_covid",
+    match_csv="input_control_2020",
     matches_per_case=5,
     match_variables={
         "sex": "category",
@@ -24,8 +14,10 @@ match(
         "stp": "category",
     },
     closest_match_variables=["age"],
-    index_date_variable="exposure_discharge",
-    output_suffix=f"_{argv[1]}",
-    output_path="output",
-    **matching_dict[argv[1]],
+    replace_match_index_date_with_case="no_offset",
+    index_date_variable="indexdate",
+    date_exclusion_variables={
+        "died_date_ons": "before",
+        "covid_date": "before",
+    },
 )

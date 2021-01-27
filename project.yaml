@@ -4,26 +4,14 @@ expectations:
   population_size: 10000
 
 actions:
-  generate_covid_cohort:
-    run: cohortextractor:latest generate_cohort --study-definition study_definition_covid
+  generate_cohorts:
+    run: cohortextractor:latest generate_cohort
     outputs:
       highly_sensitive:
-        cohort: output/input_covid.csv
-
-  generate_covid_community_cohort:
-    run: cohortextractor:latest generate_cohort --study-definition study_definition_covid_community
-    outputs:
-      highly_sensitive:
-        cohort: output/input_covid_community.csv
-
-  generate_pneumonia_cohort:
-    run: cohortextractor:latest generate_cohort --study-definition study_definition_pneumonia
-    outputs:
-      highly_sensitive:
-        cohort: output/input_pneumonia.csv
+        cohort: output/input.csv
 
 
-  crmain:
+  01_cr_dataset:
     run: stata-mp:latest analysis/01_t1dm_cr_analysis_dataset.do
     needs: [generate_cohorts]
     outputs:
@@ -37,8 +25,17 @@ actions:
         log: released_analysis_results/01_t1dm_cr_create_analysis_dataset.log
 
 
+  02_perform_matching:
+    run: stata-mp:latest analysis/02_t1dm_perform_matching.do
+    needs: [01_cr_dataset]
+    outputs:
+      highly_sensitive:
+        analysis_dataset: output/getmatchedcohortt1dm.dta
+      moderately_sensitive:
+        log: released_analysis_results/02_t1dm_cr_matched_cohort.log
 
-  python_matching_2020:
+
+  03_python_matching_2020:
     run: python:latest python analysis/match_running.py "control_2020"
     needs: [generate_cohorts]
     outputs:
