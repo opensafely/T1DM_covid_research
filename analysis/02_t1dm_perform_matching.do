@@ -14,6 +14,8 @@ patid	indexdate	gender	startdate	enddate	exposed	yob
 
 				
 ==============================================================================*/
+sysdir set PLUS ./analysis/adofiles
+sysdir set PERSONAL ./analysis/adofiles
 
 * Open a log file
 cap log close
