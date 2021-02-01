@@ -150,7 +150,7 @@ if `getallpossible'==1 merge m:1 patid exposed using `dataaspresented', keep(mat
 gsort setid -exposed
 by setid: replace indexdate = indexdate[1]
 
-save "`savedir'\getmatchedcohort`filesuffix'", replace
+save "`savedir'/getmatchedcohort`filesuffix'", replace
 
 *Restore original data
 use `dataaspresented', clear
