@@ -27,9 +27,9 @@ actions:
     needs: [generate_covid_cohort, generate_pneumonia_cohort]
     outputs:
       moderately_sensitive:
-        matching_report: output/matching_report_control_pneumonia.txt
+        matching_report: output/matching_report.txt
       highly_sensitive:
-        combined: output/matched_combined_control_pneumonia.csv
+        combined: output/matched_combined.csv
 
   matching_data_management:
     run: stata-mp:latest analysis/300_cr_data_management_matching.do 

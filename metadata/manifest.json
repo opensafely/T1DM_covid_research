@@ -11,6 +11,14 @@
     "output/input_pneumonia.csv": {
       "created_by_action": "generate_pneumonia_cohort",
       "privacy_level": "highly_sensitive"
+    },
+    "output/matched_combined.csv": {
+      "created_by_action": "matching_pneumonia",
+      "privacy_level": "highly_sensitive"
+    },
+    "output/matching_report.txt": {
+      "created_by_action": "matching_pneumonia",
+      "privacy_level": "moderately_sensitive"
     }
   },
   "actions": {
@@ -51,13 +59,13 @@
       "completed_at": "2021-02-02T18:24:14Z"
     },
     "matching_pneumonia": {
-      "state": "failed",
+      "state": "succeeded",
       "commit": "none",
       "docker_image_id": "sha256:d3b013fb15147511100e673e87b6c319fffe7a800e97e3c86590f5ab46c73168",
       "job_id": "eo4wtdrcmuwh5cum",
       "run_by_user": null,
-      "created_at": "2021-02-02T19:26:13Z",
-      "completed_at": "2021-02-02T19:26:28Z"
+      "created_at": "2021-02-02T20:57:30Z",
+      "completed_at": "2021-02-02T20:59:22Z"
     }
   },
   "workspace": "T1DM_covid_research",
