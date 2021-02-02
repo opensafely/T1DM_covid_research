@@ -426,6 +426,31 @@ sample 10
 count
 save ./output/analysis_dataset_formatchingTENPERCENT.dta, replace
 
+*create two datasets for python matching algorithm written by Alex W.
+
+*COVID-19 cases
+use ./output/analysis_dataset.dta, clear
+keep patient_id indexdate sex startdate enddate covid_date covid age 
+label variable enddate "min(dereg_date,death_date,censor_date)"
+label variable startdate "2nd Feb 2020"
+label variable covid_date "Date of COVID-19 diagnosis in primary or secondary care"
+keep if covid==1
+gen case=1
+tab case
+save ./output/input_covid.csv, replace
+
+*2020 controls - excludes all covid cases (for now consensus is that bias is low)
+use ./output/analysis_dataset.dta, clear
+keep patient_id sex startdate enddate covid_date covid age 
+label variable enddate "min(dereg_date,death_date,censor_date)"
+label variable startdate "2nd Feb 2020"
+label variable covid_date "Date of COVID-19 diagnosis in primary or secondary care"
+keep if covid==0
+gen case=0
+tab case
+save ./output/input_controls_2020.csv, replace
+
+
 * Close log file 
 log close
 

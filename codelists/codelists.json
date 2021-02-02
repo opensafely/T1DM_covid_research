@@ -1,0 +1,136 @@
+{
+  "files": {
+    "opensafely-ethnicity.csv": {
+      "id": "opensafely/ethnicity/2020-04-27",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/ethnicity/2020-04-27/",
+      "downloaded_at": "2021-01-27 16:39:47.193563Z",
+      "sha": "3d2f3998b71863a80b24d60f6f4282e14191ae13"
+    },
+    "opensafely-insulin-medication.csv": {
+      "id": "opensafely/insulin-medication/2020-04-26",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/insulin-medication/2020-04-26/",
+      "downloaded_at": "2021-01-27 16:39:47.309535Z",
+      "sha": "9d4c57c0b8738962da04b32ab43b7659cd64d774"
+    },
+    "opensafely-diabetes-unknown-type.csv": {
+      "id": "opensafely/diabetes-unknown-type/2020-06-29",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/diabetes-unknown-type/2020-06-29/",
+      "downloaded_at": "2021-01-27 16:39:47.463908Z",
+      "sha": "eaaa1867e6bbcb436df91e8b75189d7ff1ca4b0c"
+    },
+    "opensafely-type-1-diabetes.csv": {
+      "id": "opensafely/type-1-diabetes/2020-06-29",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/type-1-diabetes/2020-06-29/",
+      "downloaded_at": "2021-01-27 16:39:47.583325Z",
+      "sha": "dc4ce0fbdb8500cc7dc6288e8eec9c783e31de57"
+    },
+    "opensafely-type-1-diabetes-secondary-care.csv": {
+      "id": "opensafely/type-1-diabetes-secondary-care/2020-09-27",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/type-1-diabetes-secondary-care/2020-09-27/",
+      "downloaded_at": "2021-01-27 16:39:47.725302Z",
+      "sha": "ba80f00dceaeebc19bd4ef76cd0a4a7c3ab5e70c"
+    },
+    "opensafely-diabetes-ketoacidosis-ctv3-dka-unspecific.csv": {
+      "id": "opensafely/diabetes-ketoacidosis-ctv3-dka-unspecific/2020-10-07",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/diabetes-ketoacidosis-ctv3-dka-unspecific/2020-10-07/",
+      "downloaded_at": "2021-01-27 16:39:47.839941Z",
+      "sha": "df74a141ef0df9342dd2e95d197d7fd5e38d588f"
+    },
+    "opensafely-diabetic-ketoacidosis-secondary-care.csv": {
+      "id": "opensafely/diabetic-ketoacidosis-secondary-care/2020-10-07",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/diabetic-ketoacidosis-secondary-care/2020-10-07/",
+      "downloaded_at": "2021-01-27 16:39:47.954506Z",
+      "sha": "ee82b690761c9f6d454d79c18be32b1a98bc6e93"
+    },
+    "opensafely-type-2-diabetes.csv": {
+      "id": "opensafely/type-2-diabetes/2020-06-29",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/type-2-diabetes/2020-06-29/",
+      "downloaded_at": "2021-01-27 16:39:48.075916Z",
+      "sha": "21a0fd8e041c19abd876970d75b389b6904dc901"
+    },
+    "opensafely-antidiabetic-drugs.csv": {
+      "id": "opensafely/antidiabetic-drugs/2020-07-16",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/antidiabetic-drugs/2020-07-16/",
+      "downloaded_at": "2021-01-27 16:39:48.446099Z",
+      "sha": "f0b93b0054d673e8dcfbeba8fea0cd54239f0725"
+    },
+    "opensafely-covid-identification-in-primary-care-suspected-covid-suspected-codes.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-suspected-covid-suspected-codes/2020-07-16",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-suspected-covid-suspected-codes/2020-07-16/",
+      "downloaded_at": "2021-01-27 16:39:48.561616Z",
+      "sha": "cabe593830301e976654435e2d662d9e68fa9e66"
+    },
+    "opensafely-covid-identification-in-primary-care-helper-111-suspected.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-helper-111-suspected/2020-06-28",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-helper-111-suspected/2020-06-28/",
+      "downloaded_at": "2021-01-27 16:39:48.663082Z",
+      "sha": "60fa8f9d8bfb01e0722104f0642dd3790022644d"
+    },
+    "opensafely-covid-identification-in-primary-care-suspected-covid-advice.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-suspected-covid-advice/2020-07-16",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-suspected-covid-advice/2020-07-16/",
+      "downloaded_at": "2021-01-27 16:39:48.762210Z",
+      "sha": "b898d52ea318da16cbeea0ba2d2a1635b3673f90"
+    },
+    "opensafely-covid-identification-in-primary-care-suspected-covid-had-test.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-suspected-covid-had-test/2020-07-16",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-suspected-covid-had-test/2020-07-16/",
+      "downloaded_at": "2021-01-27 16:39:48.878902Z",
+      "sha": "c540d48e1d3ecce3d56f090f56bbe6d87e6fb459"
+    },
+    "opensafely-covid-identification-in-primary-care-probable-covid-positive-test.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-probable-covid-positive-test/2020-07-16",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-probable-covid-positive-test/2020-07-16/",
+      "downloaded_at": "2021-01-27 16:39:48.991539Z",
+      "sha": "563b536aaf850da011233653e91e10030a5bc15f"
+    },
+    "opensafely-covid-identification-in-primary-care-probable-covid-clinical-code.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-probable-covid-clinical-code/2020-07-16",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-probable-covid-clinical-code/2020-07-16/",
+      "downloaded_at": "2021-01-27 16:39:49.110001Z",
+      "sha": "5de38f993b166d6ef97c6ea822635317a6c7ae85"
+    },
+    "opensafely-covid-identification-in-primary-care-probable-covid-sequelae.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-probable-covid-sequelae/2020-07-16",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-probable-covid-sequelae/2020-07-16/",
+      "downloaded_at": "2021-01-27 16:39:49.223349Z",
+      "sha": "38dc0c0a34e2b8b376ba72819923f442c30b4946"
+    },
+    "opensafely-covid-identification-in-primary-care-exposure-to-disease.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-exposure-to-disease/2020-06-23",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-exposure-to-disease/2020-06-23/",
+      "downloaded_at": "2021-01-27 16:39:49.372971Z",
+      "sha": "b7cd77be113fa93776d072da047dc22b4a021091"
+    },
+    "opensafely-covid-identification-in-primary-care-historic-case.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-historic-case/2020-06-23",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-historic-case/2020-06-23/",
+      "downloaded_at": "2021-01-27 16:39:49.542678Z",
+      "sha": "81b19000febb049f21d00d649a0d7a0c77fae3b1"
+    },
+    "opensafely-covid-identification-in-primary-care-potential-historic-case.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-potential-historic-case/2020-06-23",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-potential-historic-case/2020-06-23/",
+      "downloaded_at": "2021-01-27 16:39:49.652673Z",
+      "sha": "49398e491d2f46d57b84b5d0e532358d2ec4526e"
+    },
+    "opensafely-hypertension.csv": {
+      "id": "opensafely/hypertension/2020-04-28",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/hypertension/2020-04-28/",
+      "downloaded_at": "2021-01-27 16:39:49.804502Z",
+      "sha": "b0d7bbf6ea767366db458bc6f6d37955ae331cc7"
+    },
+    "opensafely-smoking-clear.csv": {
+      "id": "opensafely/smoking-clear/2020-04-29",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/smoking-clear/2020-04-29/",
+      "downloaded_at": "2021-01-27 16:39:49.913530Z",
+      "sha": "0b5f3afe1db96dcce5141220e893a42ba2e5a8f7"
+    },
+    "opensafely-pneumonia-secondary-care.csv": {
+      "id": "opensafely/pneumonia-secondary-care/2020-10-05",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/pneumonia-secondary-care/2020-10-05/",
+      "downloaded_at": "2021-01-27 16:39:50.023070Z",
+      "sha": "866ab4f0ff144330c1a0ea28116c9d2073cf379a"
+    }
+  }
+}
