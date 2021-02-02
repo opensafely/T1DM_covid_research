@@ -15,11 +15,15 @@ OTHER OUTPUT: 			logfiles, printed to folder analysis/$logdir
 
 				
 ==============================================================================*/
+sysdir set PLUS ./analysis/adofiles
+sysdir set PERSONAL ./analysis/adofiles
+
 
 * Open a log file
 cap log close
-log using 01_t1dm_cr_create_analysis_dataset.log, replace t
-import delimited `c(pwd)'/output/input_covid.csv, clear
+log using ./released_analysis_results/01_t1dm_cr_create_analysis_dataset.log, replace t
+
+import delimited ./output/input.csv, clear
 
 di "STARTING safecount FROM IMPORT:"
 safecount
@@ -47,14 +51,6 @@ safetab male
 safecount
 
 
-*Start dates
-gen index 			= "01/02/2020"
-
-* Date of cohort entry, 1 Feb 2020
-gen indexdate = date(index, "DMY")
-format indexdate %d
-
-
 *******************************************************************************
 
 
@@ -64,41 +60,45 @@ format indexdate %d
 /* COVID EXPOSURE AND T1DM OUTCOME DEFINITIONS==================================================*/
 
 *COVID	
-ren primary_care_case					confirmed_date
-ren first_tested_for_covid				tested_date
-ren first_positive_test_date			positivetest_date
-ren covid_admission_date			 	c19_hospitalised_date
-ren died_ons_covid_flag_any				coviddeath_date
+ren gp_covid_code_date				gp_confirmed_date
+ren gp_positivetest_date			gp_positive_date
+ren covid_admission_date			c19_hospitalised_date
+ren died_ons_covid_flag_any			coviddeath_flag
+*don't need to rename sgss_positive_date
 
 *T1DM
-ren type1_diabetes				t1dm_primarycare_date
-ren type2_diabetes				t2dm_primarycare_date
-ren ketoacidosis				keto_primarycare_date
+ren type1_diabetes				gp_t1dm_date
+ren type2_diabetes				gp_t2dm_date
+ren ketoacidosis				gp_keto_date
 
 ren t1dm_admission_date			t1dm_hospitalised_date
 ren ketoacidosis_admission_date	keto_hospitalised_date
+ren pneumonia_admission_date	pneumonia_hospitalised_date
 	 
 *DEATH
 ren died_date_ons				death_date
 
 /* CONVERT STRINGS TO DATE FOR COVID EXPOSURE VARIABLES =============================*/
+*Note: kw edited to remove reliance on global (and therefore model.do) in the pipeline
 
-* Recode to dates from the strings 
-foreach var of global exposures {
-	confirm string variable `var'_date
-	rename `var'_date `var'_dstr
-	gen `var'_date = date(`var'_dstr, "YMD")
-	drop `var'_dstr
-	format `var'_date %td 
-
+foreach var of varlist gp_confirmed_date gp_positive_date sgss_positive_date c19_hospitalised_date pneumonia_hospitalised_date gp_t1dm_date gp_t2dm_date t1dm_hospitalised_date  gp_keto_date  keto_hospitalised_date death_date {
+		confirm string variable `var'
+		rename `var' _tmp
+		gen `var' = date(_tmp, "YMD")
+		drop _tmp
+		format %d `var'
 }
 
+
 * Binary indicators for exposures and outcomes
-foreach i of global exposures {
-		gen `i'=0
-		replace  `i'=1 if `i'_date < .
-		safetab `i'
-		label variable `i' "`i'"
+foreach var of varlist gp_confirmed_date gp_positive_date sgss_positive_date c19_hospitalised_date pneumonia_hospitalised_date gp_t1dm_date gp_t2dm_date t1dm_hospitalised_date  gp_keto_date  keto_hospitalised_date death_date {
+		
+		local binaryVersion=subinstr("`var'","_date", "", 1)
+		display "``var''"
+		gen `binaryVersion'=0
+		replace  `binaryVersion'=1 if `var'< .
+		safetab `binaryVersion'
+		label variable `binaryVersion' "`binaryVersion'"
 }
 
 *date of deregistration
@@ -112,7 +112,7 @@ replace dereg=1 if dereg_date < .
 safetab dereg
 
 *identify covid cases
-gen covid_date=min(confirmed_date, positivetest_date, c19_hospitalised_date)
+gen covid_date=min(gp_confirmed_date, gp_positive_date, sgss_positive_date, c19_hospitalised_date)
 format covid_date %td
 
 gen covid=0
@@ -120,29 +120,30 @@ replace covid=1 if covid_date!=.
 safetab covid
 
 *identify t1dm cases
-gen t1dm_date=min(t1dm_primarycare_date, t1dm_hospitalised_date)
+gen t1dm_date=min(gp_t1dm_date, t1dm_hospitalised_date)
 
 gen t1dm=0
 replace t1dm=1 if t1dm_date!=.
 
 *identify keto cases
-gen keto_date=min(keto_primarycare_date, keto_hospitalised_date)
+gen keto_date=min(gp_keto_date, keto_hospitalised_date)
 gen keto=0
 replace keto=1 if keto_date!=.
 
 *identify either
-gen t1dm_keto_date=min(keto_primarycare_date, keto_hospitalised_date, t1dm_primarycare_date, t1dm_hospitalised_date)
+gen t1dm_keto_date=min(gp_keto_date, keto_hospitalised_date, gp_t1dm_date, t1dm_hospitalised_date)
 gen t1dm_keto=0
 replace t1dm_keto=1 if t1dm_keto_date!=.
 
+*identify t2dm cases
+ren gp_t2dm* t2dm*
 
-local p "covid t1dm keto t1dm_keto"
+local p "covid t1dm keto t1dm_keto t2dm"
 foreach i of local p {
 label define `i' 0"No `i'" 1"`i'"
 label values `i' `i'
 safetab `i'
 }
-
 
 *identify those with baseline t1dm/dka (prior to covid) and incident t1dm/dka (post covid)
 local p "t1dm keto t1dm_keto"
@@ -167,20 +168,7 @@ safetab incident_`i'
 safetab monthbefore_`i'
 }
 
-/* CENSORING */
-/* SET FU DATES===============================================================*/ 
 
-* Censoring dates for each outcome (last date outcome data available) 
-*https://github.com/opensafely/rapid-reports/blob/master/notebooks/latest-dates.ipynb
-
-*outcomes are t1dm and ketoacidosis- censoring should be at earliest of TPP or SUS end date
-gen t1dm_censor_date = d("31/08/2020")
-gen keto_censor_date = d("31/08/2020")
-gen t1dm_keto_censor_date = d("31/08/2020")
-
-format *censor_date %d
-sum *censor_date, format
-*******************************************************************************
 
 
 /* DEMOGRAPHICS */ 
@@ -295,24 +283,103 @@ label define imd 1 "1 least deprived" 2 "2" 3 "3" 4 "4" 5 "5 most deprived" .u "
 label values imd imd 
 safetab imd, m
 
+******************************
+*  Convert strings to dates  *
+******************************
 
-/**** Create survival times  ****/
-* For looping later, name must be stime_binary_outcome_name
-
-* Survival time = last followup date (first: deregistration date, end study, death, or that outcome)
-*Ventilation does not have a survival time because it is a yes/no flag
-foreach i of global outcomes3 {
-	gen stime_`i' = min(`i'_censor_date, death_date, `i'_date, dereg_date)
+* To be added: dates related to outcomes
+foreach var of varlist bmi_date_measured 	///
+					   hypertension 	{ 
+	capture confirm string variable `var'
+	if _rc!=0 {
+		assert `var'==.
+		rename `var' `var'_date
+	}
+	else {
+		rename `var' `var'_dstr
+		gen `var'_date = date(`var'_dstr, "YMD") 
+		order `var'_date, after(`var'_dstr)
+		drop `var'_dstr
+	}
+	format `var'_date %td
 }
 
-* If outcome occurs after censoring, set to zero
-foreach i of global outcomes3 {
-	replace `i'=0 if `i'_date>stime_`i'
-	tab `i'
-}
+/* BMI */
 
-* Format date variables
-format  stime* %td 
+* Set implausible BMIs to missing:
+replace bmi = . if !inrange(bmi, 15, 50)
+
+****************************************
+*   Hba1c:  Level of diabetic control  *
+****************************************
+
+label define hba1ccat	0 "<6.5%"  		///
+						1">=6.5-7.4"  	///
+						2">=7.5-7.9" 	///
+						3">=8-8.9" 		///
+						4">=9"
+
+* Set zero or negative to missing
+	replace hba1c_percentage   = . if hba1c_percentage   <= 0
+	replace hba1c_mmol_per_mol = . if hba1c_mmol_per_mol <= 0
+
+
+	/* Express  HbA1c as percentage  */ 
+
+	* Express all values as perecentage 
+	noi summ hba1c_percentage hba1c_mmol_per_mol
+	gen 	hba1c_pct = hba1c_percentage 
+	replace hba1c_pct = (hba1c_mmol_per_mol/10.929) + 2.15  ///
+				if hba1c_mmol_per_mol<. 
+
+	* Valid % range between 0-20  
+	replace hba1c_pct = . if !inrange(hba1c_pct, 0, 20) 
+	replace hba1c_pct = round(hba1c_pct, 0.1)
+
+
+	/* Categorise hba1c and diabetes  */
+
+	* Group hba1c
+	gen 	hba1ccat_1 = 0 if hba1c_pct <  6.5
+	replace hba1ccat_1 = 1 if hba1c_pct >= 6.5  & hba1c_pct < 7.5
+	replace hba1ccat_1 = 2 if hba1c_pct >= 7.5  & hba1c_pct < 8
+	replace hba1ccat_1 = 3 if hba1c_pct >= 8    & hba1c_pct < 9
+	replace hba1ccat_1 = 4 if hba1c_pct >= 9    & hba1c_pct !=.
+	label values hba1ccat_1 hba1ccat
+	
+	* Delete unneeded variables
+	drop hba1c_pct hba1c_percentage hba1c_mmol_per_mol
+	
+
+* Smoking
+label define smoke 1 "Never" 2 "Former" 3 "Current" .u "Unknown (.u)"
+gen     smoke = 1  if smoking_status=="N"
+replace smoke = 2  if smoking_status=="E"
+replace smoke = 3  if smoking_status=="S"
+replace smoke = .u if smoking_status=="M"
+replace smoke = .u if smoking_status==""
+label values smoke smoke
+drop smoking_status
+
+
+/* SET DATES===============================================================*/ 
+*generate indexdate as date of COVID-19 infection
+gen indexdate=covid_date
+
+*gen startdate as start of cohort followup
+gen startdate=d("01/02/2020")
+
+* Censoring dates for each outcome (last date outcome data available) 
+*https://github.com/opensafely/rapid-reports/blob/master/notebooks/latest-dates.ipynb
+
+*outcomes are t1dm and ketoacidosis- censoring should be at earliest of TPP or SUS end date
+gen censor_date = d("01/11/2020")
+sum censor_date, format
+
+gen enddate=min(dereg_date,death_date,censor_date)
+
+gen yob=2020-age
+
 
 /* LABEL VARIABLES============================================================*/
 *  Label variables you are intending to keep, drop the rest 
@@ -330,51 +397,60 @@ label var eth5						"Eth 5 categories"
 label var ethnicity_16				"Eth 16 categories"
 label var stp 						"Sustainability and Transformation Partnership"
 lab var region						"Region of England"
+lab var bmi 						"BMI"
+lab var hypertension				"Hypertension"
 
-/* Outcomes and follow-up
-label var indexdate					"Date of study start (Feb 1 2020)"
-foreach i of global outcomes {
-	label var `i'_censor_date		 "Date of admin censoring"
-}
-*/
 *Outcome dates
 foreach i of global outcomes {
 	label var `i'_date					"Failure date:  `i'"
 	d `i'_date
 }
 
-* binary outcome indicators
-foreach i of global outcomes {
-	lab var `i' 					"`i'"
-	safetab `i'
-}
-
-foreach i of global outcomes2 {
-	lab var `i' 					"`i'"
-	safetab `i'
-}
-
 sort patient_id
 
-
-save "$Tempdir/analysis_dataset.dta", replace
-
-****************************************************************
-*  Create outcome specific datasets for the whole population  *
-*****************************************************************
+format *date* %d
+save ./output/analysis_dataset.dta, replace
 
 
-foreach i of global outcomes3 {
-	use "$Tempdir/analysis_dataset.dta", clear
-	
-	drop if `i'_date <= indexdate 
+*prepare dataset for matching
+keep patient_id indexdate sex startdate enddate covid yob
+ren patient_id patid
+ren sex gender
+ren covid exposed
+sort indexdate
+save ./output/analysis_dataset_formatching.dta, replace
 
-	stset stime_`i', fail(`i') 				///	
-	id(patient_id) enter(indexdate) origin(indexdate)
-	save "$Tempdir/analysis_dataset_STSET_`i'.dta", replace
-}	
+*create a 10% sample of the matching-prepared dataset
+set seed 10853
+sample 10
+count
+save ./output/analysis_dataset_formatchingTENPERCENT.dta, replace
 
-	
+*create two datasets for python matching algorithm written by Alex W.
+
+*COVID-19 cases
+use ./output/analysis_dataset.dta, clear
+keep patient_id indexdate sex startdate enddate covid_date covid age 
+label variable enddate "min(dereg_date,death_date,censor_date)"
+label variable startdate "2nd Feb 2020"
+label variable covid_date "Date of COVID-19 diagnosis in primary or secondary care"
+keep if covid==1
+gen case=1
+tab case
+save ./output/input_covid.csv, replace
+
+*2020 controls - excludes all covid cases (for now consensus is that bias is low)
+use ./output/analysis_dataset.dta, clear
+keep patient_id sex startdate enddate covid_date covid age 
+label variable enddate "min(dereg_date,death_date,censor_date)"
+label variable startdate "2nd Feb 2020"
+label variable covid_date "Date of COVID-19 diagnosis in primary or secondary care"
+keep if covid==0
+gen case=0
+tab case
+save ./output/input_controls_2020.csv, replace
+
+
 * Close log file 
 log close
 

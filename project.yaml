@@ -21,3 +21,19 @@ actions:
     outputs:
       highly_sensitive:
         cohort: output/input_pneumonia.csv
+  
+  matching_pneumonia:
+    run: python:latest python analysis/match_running.py "input_pneumonia"
+    needs: [generate_covid_cohort, generate_pneumonia_cohort]
+    outputs:
+      moderately_sensitive:
+        matching_report: output/matching_report_control_pneumonia.txt
+      highly_sensitive:
+        combined: output/matched_combined_control_pneumonia.csv
+
+  matching_data_management:
+    run: stata-mp:latest analysis/300_cr_data_management_matching.do 
+    needs: [generate_covid_cohort, generate_pneumonia_cohort]
+    outputs:
+      highly_sensitive:
+        combined3: output/matched_combined_pneumonia.dta

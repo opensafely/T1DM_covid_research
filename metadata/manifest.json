@@ -14,15 +14,6 @@
     }
   },
   "actions": {
-    "generate_covid_cohort": {
-      "state": "succeeded",
-      "commit": "none",
-      "docker_image_id": "sha256:8fcde4c29c7e9f0f8ec16bae61fbe6d92413b2b7692c0631df51e408ab849b57",
-      "job_id": "6lczbv6uiacadswe",
-      "run_by_user": null,
-      "created_at": "2021-02-02T17:12:45Z",
-      "completed_at": "2021-02-02T17:13:18Z"
-    },
     "generate_covid_community_cohort": {
       "state": "succeeded",
       "commit": "none",
@@ -40,6 +31,33 @@
       "run_by_user": null,
       "created_at": "2021-02-02T17:12:45Z",
       "completed_at": "2021-02-02T17:13:28Z"
+    },
+    "generate_covid_cohort": {
+      "state": "succeeded",
+      "commit": "none",
+      "docker_image_id": "sha256:8fcde4c29c7e9f0f8ec16bae61fbe6d92413b2b7692c0631df51e408ab849b57",
+      "job_id": "6lczbv6uiacadswe",
+      "run_by_user": null,
+      "created_at": "2021-02-02T18:14:42Z",
+      "completed_at": "2021-02-02T18:14:54Z"
+    },
+    "generate_control_2020_cohort": {
+      "state": "failed",
+      "commit": "none",
+      "docker_image_id": "sha256:8fcde4c29c7e9f0f8ec16bae61fbe6d92413b2b7692c0631df51e408ab849b57",
+      "job_id": "7zbulg4z7rhahysa",
+      "run_by_user": null,
+      "created_at": "2021-02-02T18:23:57Z",
+      "completed_at": "2021-02-02T18:24:14Z"
+    },
+    "matching_pneumonia": {
+      "state": "failed",
+      "commit": "none",
+      "docker_image_id": "sha256:d3b013fb15147511100e673e87b6c319fffe7a800e97e3c86590f5ab46c73168",
+      "job_id": "eo4wtdrcmuwh5cum",
+      "run_by_user": null,
+      "created_at": "2021-02-02T19:26:13Z",
+      "completed_at": "2021-02-02T19:26:28Z"
     }
   },
   "workspace": "T1DM_covid_research",
