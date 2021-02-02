@@ -34,6 +34,13 @@ common_variables = dict(
         date_format="YYYY-MM-DD",
         return_expectations={"date": {"earliest": "index_date"}},
     ),
+    ketoacidosis_gp=patients.with_these_clinical_events(
+        diabetic_ketoacidosis_codes,
+        on_or_after="patient_index_date + 1 days",
+        return_first_date_in_period=True,
+        date_format="YYYY-MM-DD",
+        return_expectations={"date": {"earliest": "index_date"}},
+    ),
     t1dm_hospital=patients.admitted_to_hospital(
         returning="date_admitted",
         with_these_diagnoses=diabetes_t1_codes_hospital,
@@ -45,6 +52,14 @@ common_variables = dict(
     t2dm_hospital=patients.admitted_to_hospital(
         returning="date_admitted",
         with_these_diagnoses=diabetes_t2_codes_hospital,
+        on_or_after="patient_index_date + 1 days",
+        date_format="YYYY-MM-DD",
+        find_first_match_in_period=True,
+        return_expectations={"date": {"earliest": "index_date"}},
+    ),
+    ketoacidosis_hospital=patients.admitted_to_hospital(
+        returning="date_admitted",
+        with_these_diagnoses=ketoacidosis_codes_hospital,
         on_or_after="patient_index_date + 1 days",
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,

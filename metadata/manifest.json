@@ -1,14 +1,47 @@
 {
-  "files": {},
+  "files": {
+    "output/input_covid.csv": {
+      "created_by_action": "generate_covid_cohort",
+      "privacy_level": "highly_sensitive"
+    },
+    "output/input_covid_community.csv": {
+      "created_by_action": "generate_covid_community_cohort",
+      "privacy_level": "highly_sensitive"
+    },
+    "output/input_pneumonia.csv": {
+      "created_by_action": "generate_pneumonia_cohort",
+      "privacy_level": "highly_sensitive"
+    }
+  },
   "actions": {
     "generate_covid_cohort": {
-      "state": "failed",
+      "state": "succeeded",
       "commit": "none",
-      "docker_image_id": "sha256:0f0f84e012c45836511e3970e9b97fd2203057a2108ff0b58ce544393f9637cc",
+      "docker_image_id": "sha256:8fcde4c29c7e9f0f8ec16bae61fbe6d92413b2b7692c0631df51e408ab849b57",
       "job_id": "6lczbv6uiacadswe",
       "run_by_user": null,
-      "created_at": "2021-02-02T15:36:30Z",
-      "completed_at": "2021-02-02T15:36:52Z"
+      "created_at": "2021-02-02T16:49:41Z",
+      "completed_at": "2021-02-02T16:49:56Z"
+    },
+    "generate_covid_community_cohort": {
+      "state": "succeeded",
+      "commit": "none",
+      "docker_image_id": "sha256:8fcde4c29c7e9f0f8ec16bae61fbe6d92413b2b7692c0631df51e408ab849b57",
+      "job_id": "wdwbmlqntrsms42y",
+      "run_by_user": null,
+      "created_at": "2021-02-02T16:50:36Z",
+      "completed_at": "2021-02-02T16:51:00Z"
+    },
+    "generate_pneumonia_cohort": {
+      "state": "succeeded",
+      "commit": "none",
+      "docker_image_id": "sha256:8fcde4c29c7e9f0f8ec16bae61fbe6d92413b2b7692c0631df51e408ab849b57",
+      "job_id": "bh5w5anpgyy5noe5",
+      "run_by_user": null,
+      "created_at": "2021-02-02T16:50:36Z",
+      "completed_at": "2021-02-02T16:51:13Z"
     }
-  }
+  },
+  "workspace": "T1DM_covid_research",
+  "repo": "/Users/lsh152058/Documents/GitHub/T1DM_covid_research"
 }
