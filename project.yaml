@@ -31,9 +31,9 @@ actions:
       highly_sensitive:
         combined: output/matched_combined.csv
 
-  matching_data_management:
-    run: stata-mp:latest analysis/300_cr_data_management_matching.do 
-    needs: [generate_covid_cohort, generate_pneumonia_cohort]
-    outputs:
-      highly_sensitive:
-        combined3: output/matched_combined_pneumonia.dta
+ # matching_data_management:
+ #   run: stata-mp:latest analysis/300_cr_data_management_matching.do 
+ #   needs: [generate_covid_cohort, generate_pneumonia_cohort]
+ #   outputs:
+ #     highly_sensitive:
+ #       combined3: output/matched_combined_pneumonia.dta
