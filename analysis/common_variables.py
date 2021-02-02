@@ -120,6 +120,25 @@ common_variables = dict(
         """,
         return_expectations={"incidence": 0.05},
     ),
+    hba1c_mmol_per_mol=patients.with_these_clinical_events(
+        hba1c_new_codes,
+        find_last_match_in_period=True,
+        returning="numeric_value",
+        include_date_of_match=True,
+        include_month=True,
+        between=["patient_index_date - 1 year", "patient_index_date + 1 days"],
+        return_expectations={"incidence": 0.05},
+    ),
+
+    hba1c_percentage=patients.with_these_clinical_events(
+        hba1c_old_codes,
+        find_last_match_in_period=True,
+        returning="numeric_value",
+        include_date_of_match=True,
+        include_month=True,
+        between=["patient_index_date - 1 year", "patient_index_date + 1 days"],
+        return_expectations={"incidence": 0.05},
+
     died_date_ons=patients.died_from_any_cause(
         returning="date_of_death",
         date_format="YYYY-MM-DD",
