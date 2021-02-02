@@ -120,25 +120,32 @@ common_variables = dict(
         """,
         return_expectations={"incidence": 0.05},
     ),
-    hba1c_mmol_per_mol=patients.with_these_clinical_events(
+    hba1c_mmol=patients.with_these_clinical_events(
         hba1c_new_codes,
         find_last_match_in_period=True,
         returning="numeric_value",
         include_date_of_match=True,
         include_month=True,
         between=["patient_index_date - 1 year", "patient_index_date + 1 days"],
-        return_expectations={"incidence": 0.05},
+        return_expectations={
+            "float": {"distribution": "normal", "mean": 60.0, "stddev": 15},
+            "date": {"earliest": "2019-02-28", "latest": "2020-02-29"},
+            "incidence": 0.95,
+        },
     ),
-
-    hba1c_percentage=patients.with_these_clinical_events(
+    hba1c_pct=patients.with_these_clinical_events(
         hba1c_old_codes,
         find_last_match_in_period=True,
         returning="numeric_value",
         include_date_of_match=True,
         include_month=True,
         between=["patient_index_date - 1 year", "patient_index_date + 1 days"],
-        return_expectations={"incidence": 0.05},
-
+        return_expectations={
+            "float": {"distribution": "normal", "mean": 60.0, "stddev": 15},
+            "date": {"earliest": "2019-02-28", "latest": "2020-02-29"},
+            "incidence": 0.95,
+        },
+    ),
     died_date_ons=patients.died_from_any_cause(
         returning="date_of_death",
         date_format="YYYY-MM-DD",
@@ -160,13 +167,46 @@ common_variables = dict(
             "category": {"ratios": {"M": 0.49, "F": 0.51}},
         }
     ),
+    #ETHNICITY IN 16 CATEGORIES
+    ethnicity_16=patients.with_these_clinical_events(
+        ethnicity_codes_16,
+        returning="category",
+        find_last_match_in_period=True,
+        include_date_of_match=True,
+        return_expectations={
+            "category": {
+                "ratios": {
+                    "1": 0.0625,
+                    "2": 0.0625,
+                    "3": 0.0625,
+                    "4": 0.0625,
+                    "5": 0.0625,
+                    "6": 0.0625,
+                    "7": 0.0625,
+                    "8": 0.0625,
+                    "9": 0.0625,
+                    "10": 0.0625,
+                    "11": 0.0625,
+                    "12": 0.0625,
+                    "13": 0.0625,
+                    "14": 0.0625,
+                    "15": 0.0625,
+                    "16": 0.0625,
+                }
+            },
+            "incidence": 0.75,
+        },
+    ),
+
+   
+    # ETHNICITY IN 6 CATEGORIES
     ethnicity=patients.with_these_clinical_events(
         ethnicity_codes,
         returning="category",
         find_last_match_in_period=True,
-        on_or_before="patient_index_date",
+        include_date_of_match=True,
         return_expectations={
-            "category": {"ratios": {"1": 0.8, "5": 0.1, "3": 0.1}},
+            "category": {"ratios": {"1": 0.2, "2":0.2, "3":0.2, "4":0.2, "5": 0.2}},
             "incidence": 0.75,
         },
     ),
