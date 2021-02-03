@@ -1,0 +1,19 @@
+Matching started at: 2021-02-02 21:26:28.703225
+
+CSV import:
+Completed 2021-02-02 21:26:28.781314
+Cases    2117
+Matches  5618
+
+Dropping cases from matches:
+Completed 2021-02-02 21:26:28.786043
+Cases    2117
+Matches  4319
+
+Completed pre-calculating indices at 2021-02-02 21:26:28.855875
+
+Date exclusions for cases:
+Completed 2021-02-02 21:26:28.860034
+Cases    0
+Matches  4319
+
