@@ -18,6 +18,5 @@ match(
     index_date_variable="patient_index_date",
     date_exclusion_variables={
         "died_date_ons": "before",
-        "exposure_hospitalisation": "before",
     },
 )
