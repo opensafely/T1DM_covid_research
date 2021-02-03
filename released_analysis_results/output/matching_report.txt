@@ -1,19 +1,52 @@
-Matching started at: 2021-02-02 21:26:28.703225
+Matching started at: 2021-02-03 17:21:57.706923
 
 CSV import:
-Completed 2021-02-02 21:26:28.781314
+Completed 2021-02-03 17:21:57.780580
 Cases    2117
 Matches  5618
 
 Dropping cases from matches:
-Completed 2021-02-02 21:26:28.786043
+Completed 2021-02-03 17:21:57.784962
 Cases    2117
 Matches  4319
 
-Completed pre-calculating indices at 2021-02-02 21:26:28.855875
+Completed pre-calculating indices at 2021-02-03 17:21:57.853448
 
 Date exclusions for cases:
-Completed 2021-02-02 21:26:28.860034
-Cases    0
+Completed 2021-02-03 17:21:57.857356
+Cases    1742
 Matches  4319
+
+After matching:
+Completed 2021-02-03 17:22:19.336368
+Cases    615
+Matches  3075
+
+Number of available matches per case:
+5.0    615
+0.0    407
+1.0    321
+3.0    169
+2.0    157
+4.0     73
+
+age comparison:
+Cases:
+count    615.000000
+mean      67.211382
+std       17.358573
+min       18.000000
+25%       56.000000
+50%       70.000000
+75%       81.000000
+max      100.000000
+Matches:
+count    3075.000000
+mean       67.214959
+std        17.336812
+min        18.000000
+25%        56.000000
+50%        70.000000
+75%        81.000000
+max       100.000000
 
