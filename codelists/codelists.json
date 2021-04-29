@@ -30,6 +30,12 @@
       "downloaded_at": "2021-01-27 16:39:47.725302Z",
       "sha": "ba80f00dceaeebc19bd4ef76cd0a4a7c3ab5e70c"
     },
+    "opensafely-chronic-cardiac-disease.csv": {
+      "id": "opensafely/chronic-cardiac-disease/2020-04-08",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/chronic-cardiac-disease/2020-04-08/",
+      "downloaded_at": "2021-04-29 11:06:18.318188Z",
+      "sha": "2267f6fada9c77a2bbf62ce7a1c07ddf48348d61"
+    },
     "opensafely-diabetes-ketoacidosis-ctv3-dka-unspecific.csv": {
       "id": "opensafely/diabetes-ketoacidosis-ctv3-dka-unspecific/2020-10-07",
       "url": "https://codelists.opensafely.org/codelist/opensafely/diabetes-ketoacidosis-ctv3-dka-unspecific/2020-10-07/",

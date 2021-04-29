@@ -27,6 +27,10 @@ covid_primary_care_sequalae=codelist_from_csv(
     column="CTV3ID",
 )
 
+chronic_cardiac_disease_codes = codelist_from_csv(
+    "codelists/opensafely-chronic-cardiac-disease.csv", system="ctv3", column="CTV3ID"
+)
+
 covid_primary_care_exposure = codelist_from_csv(
     "codelists/opensafely-covid-identification-in-primary-care-exposure-to-disease.csv", 
     system="ctv3", 
