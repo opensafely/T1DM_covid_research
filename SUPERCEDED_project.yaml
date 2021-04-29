@@ -1,0 +1,48 @@
+version: "3.0"
+
+expectations:
+  population_size: 10000
+
+actions:
+  generate_cohorts:
+    run: cohortextractor:latest generate_cohort
+    outputs:
+      highly_sensitive:
+        cohort: output/input.csv
+
+
+  01_cr_dataset:
+    run: stata-mp:latest analysis/01_t1dm_cr_analysis_dataset.do
+    needs: [generate_cohorts]
+    outputs:
+      highly_sensitive:
+        analysis_dataset: output/analysis_dataset.dta
+        analysis_dataset_formatching: output/analysis_dataset_formatching.dta
+        analysis_dataset_formatching10PercentSample: output/analysis_dataset_formatchingTENPERCENT.dta
+        cases_2020: output/input_covid.csv
+        controls_2020: output/input_controls_2020.csv
+      moderately_sensitive:
+        log: released_analysis_results/01_t1dm_cr_create_analysis_dataset.log
+
+
+  02_perform_matching:
+    run: stata-mp:latest analysis/02_t1dm_perform_matching.do
+    needs: [01_cr_dataset]
+    outputs:
+      highly_sensitive:
+        analysis_dataset: output/getmatchedcohortt1dm.dta
+      moderately_sensitive:
+        log: released_analysis_results/02_t1dm_cr_matched_cohort.log
+
+
+  03_python_matching_2020:
+    run: python:latest python analysis/match_running.py "control_2020"
+    needs: [generate_cohorts]
+    outputs:
+      moderately_sensitive:
+        matching_report: output/matching_report_control_2020.txt
+      highly_sensitive:
+        combined: output/matched_combined_control_2020.csv
+
+
+
