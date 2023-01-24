@@ -1,6 +1,6 @@
 # ${T1DM_covid_research}
 
-[View on OpenSAFELY](https://jobs.opensafely.org/repo/https%253A%252F%252Fgithub.com%252F${GITHUB_REPOSITORY_OWNER}%252F${GITHUB_REPOSITORY_NAME})
+[View on OpenSAFELY](https://jobs.opensafely.org/repo/https%253A%252F%252Fgithub.com%252F${opensafely}%252F${T1DM_covid_research})
 
 Details of the purpose and any published outputs from this project can be found at the link above.
 
