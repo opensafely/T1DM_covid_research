@@ -1,4 +1,4 @@
-# ${GITHUB_REPOSITORY_NAME}
+# ${T1DM_covid_research}
 
 [View on OpenSAFELY](https://jobs.opensafely.org/repo/https%253A%252F%252Fgithub.com%252F${GITHUB_REPOSITORY_OWNER}%252F${GITHUB_REPOSITORY_NAME})
 
